@@ -1,4 +1,5 @@
 use std::ops::Fn;
+use nalgebra::{SMatrix, SVector};
 
 pub enum FiniteDifferenceType {
     Central, 
