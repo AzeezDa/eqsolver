@@ -1,3 +1,4 @@
+#[macro_export]
 macro_rules! gen_gaussnewton_fd {
     ($name:ident, $dim_n:expr, $dim_m:expr) => {
         pub struct $name<F>

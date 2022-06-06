@@ -5,7 +5,8 @@ pub extern crate nalgebra;
 #[cfg(test)]
 mod tests {
     use crate::math::finite_differences::{backward, central, forward};
-    use crate::solvers::{gen_multivarnewton, FDNewton, NewtonSolver, SecantSolver, gen_multivarnewton_fd, gen_gaussnewton, gen_gaussnewton_fd};
+    use crate::solvers::{FDNewton, NewtonSolver, SecantSolver};
+    use crate::{gen_gaussnewton, gen_gaussnewton_fd, gen_multivarnewton, gen_multivarnewton_fd};
     use nalgebra::{Vector2, Matrix2, Vector3, SMatrix, Matrix3x2, vector};
 
     #[test]

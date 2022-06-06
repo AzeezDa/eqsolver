@@ -1,3 +1,4 @@
+#[macro_export]
 macro_rules! gen_multivarnewton {
     ($name:ident, $dim:expr) => {
         pub struct $name<F, J>
@@ -55,5 +56,3 @@ macro_rules! gen_multivarnewton {
         }
     };
 }
-
-pub (crate) use gen_multivarnewton;

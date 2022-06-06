@@ -1,3 +1,4 @@
+#[macro_export]
 macro_rules! gen_multivarnewton_fd {
     ($name:ident, $dim:expr) => {
         pub struct $name<F>
