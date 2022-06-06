@@ -1,17 +1,28 @@
 mod secant;
-pub use secant::*;
 mod newton;
-pub use newton::*;
 mod fdnewton;
-pub use fdnewton::*;
 mod multinewton;
-pub use multinewton::*;
 mod multinewton_fd;
-pub use multinewton_fd::*;
 mod gaussnewton;
-pub use gaussnewton::*;
 mod gaussnewton_fd;
-pub use gaussnewton_fd::*;
+
+pub mod single_variable {
+    pub use super::{
+        secant::SecantSolver,
+        newton::NewtonSolver,
+        fdnewton::FDNewton,
+    };
+}
+
+pub mod multivariable {
+    pub use super::{
+        multinewton::MultiVarNewton,
+        multinewton_fd::MultiVarNewtonFD,
+        gaussnewton::GaussNewton,
+        gaussnewton_fd::GaussNewtonFD
+    };
+}
+
 
 pub const DEFAULT_TOL: f64 = 1e-9;
 pub const DEFAULT_ITERMAX: usize = 50;
