@@ -5,9 +5,8 @@ pub extern crate nalgebra;
 #[cfg(test)]
 mod tests {
     use crate::math::finite_differences::{backward, central, forward};
-    use crate::solvers::{FDNewton, NewtonSolver, SecantSolver};
-    use crate::{gen_gaussnewton, gen_gaussnewton_fd, gen_multivarnewton, gen_multivarnewton_fd};
-    use nalgebra::{Vector2, Matrix2, Vector3, SMatrix, Matrix3x2, vector};
+    use crate::solvers::{single_variable::*, multivariable::*};
+    use nalgebra::{Vector2, Matrix2, Vector3, Matrix3x2, vector};
 
     #[test]
     fn solve_secant() {
@@ -77,12 +76,8 @@ mod tests {
         // Solved analytically but form was ugly so here is approximation
         const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
 
-        // Generate struct to solve non-linear system of equation of 2 equations and 2 variables (assuming Jacobian can be analytically found)
-        gen_multivarnewton!(MVN2, 2);
-        gen_multivarnewton_fd!(MVNFD2, 2);
-
         // Use struct generated above to solve the problem defined in f
-        let solution = MVN2::new(f, j)
+        let solution = MultiVarNewton::new(f, j)
             .with_tol(1e-3)
             .with_itermax(50)
             .solve(Vector2::repeat(1.)).ok().unwrap();
@@ -90,7 +85,7 @@ mod tests {
             
 
         // Use struct generated above to solve the problem defined in f
-        let solution_fd = MVNFD2::new(f)
+        let solution_fd = MultiVarNewtonFD::new(f)
             .with_tol(1e-3)
             .with_itermax(50)
             .solve(Vector2::repeat(1.)).ok().unwrap();
@@ -127,14 +122,12 @@ mod tests {
         // Solved using Octave (Can also be checked visually in Desmos or similar)
         const SOLUTION: Vector2<f64> = vector![4.217265312839526, 2.317879970005811];
         
-        gen_gaussnewton!(GN3x2, 3, 2);
-        gen_gaussnewton_fd!(GNFD3x2, 3, 2);
 
-        let solution_gn = GN3x2::new(f, j)
+        let solution_gn = GaussNewton::new(f, j)
                         .with_tol(1e-3)
                         .solve(vector![4.5, 2.5]).ok().unwrap();
 
-        let solution_gn_fd = GNFD3x2::new(f)
+        let solution_gn_fd = GaussNewtonFD::new(f)
                         .with_tol(1e-3)
                         .solve(vector![4.5, 2.5]).ok().unwrap();
 
