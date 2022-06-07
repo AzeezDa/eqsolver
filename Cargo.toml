@@ -2,6 +2,19 @@
 name = "eqsolver"
 version = "0.1.0"
 edition = "2021"
+description = "A library that solves equations using numerical methods"
+repository = "https://github.com/AzeezDa/eqsolver"
+license = "MIT"
+readme = "README.md"
+keywords = ["equation", "solver", "numerical methods", "math"]
+categories = ["science", "mathemetics"]
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[lib]
+name = "eqsolver"
+path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
