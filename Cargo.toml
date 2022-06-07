@@ -7,7 +7,7 @@ repository = "https://github.com/AzeezDa/eqsolver"
 license = "MIT"
 readme = "README.md"
 keywords = ["equation", "solver", "math"]
-categories = ["science", "mathemetics"]
+categories = ["science", "mathematics"]
 
 [badges]
 maintenance = { status = "actively-developed" }
