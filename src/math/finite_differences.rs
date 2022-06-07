@@ -1,20 +1,32 @@
+use num_traits::Float;
 use std::ops::Fn;
 
+/// # `FiniteDifferenceType`
+/// 
+/// Enum type that is used in the solvers to determine what type of finite difference to use.
 pub enum FiniteDifferenceType {
-    Central, 
-    Foward,
-    Backward
+    Central,
+    Forward,
+    Backward,
 }
 
-pub fn central<F: Fn(f64) -> f64>(f: F, x: f64, h: f64) -> f64 {
-    (f(x + h) - f(x - h)) / h / 2.
+/// # `central`
+/// Given the closure F(T) -> T where T is a floating number, point x to derivate at and the step length h.
+/// This approximates the derivative using (f(x+h) - f(x-h))/(2h). This has Order of Accuracy 2.
+pub fn central<T: Float, F: Fn(T) -> T>(f: F, x: T, h: T) -> T {
+    (f(x + h) - f(x - h)) / (h + h)
 }
 
-pub fn forward<F: Fn(f64) -> f64>(f: F, x: f64, h: f64) -> f64 {
+/// # `forward`
+/// Given the closure F(T) -> T where T is a floating number, point x to derivate at and the step length h.
+/// This approximates the derivative using (f(x+h) - f(x))/h. This has Order of Accuracy 1.
+pub fn forward<T: Float, F: Fn(T) -> T>(f: F, x: T, h: T) -> T {
     (f(x + h) - f(x)) / h
 }
 
-pub fn backward<F: Fn(f64) -> f64>(f: F, x: f64, h: f64) -> f64 {
+/// # `backward`
+/// Given the closure F(T) -> T where T is a floating number, point x to derivate at and the step length h.
+/// This approximates the derivative using (f(x) - f(x-h))/h. This has Order of Accuracy 1.
+pub fn backward<T: Float, F: Fn(T) -> T>(f: F, x: T, h: T) -> T {
     (f(x) - f(x - h)) / h
 }
-

@@ -8,8 +8,8 @@ mod gaussnewton_fd;
 
 pub mod single_variable {
     pub use super::{
-        secant::SecantSolver,
-        newton::NewtonSolver,
+        secant::Secant,
+        newton::Newton,
         fdnewton::FDNewton,
     };
 }
@@ -24,12 +24,15 @@ pub mod multivariable {
 }
 
 
-pub const DEFAULT_TOL: f64 = 1e-9;
+pub const DEFAULT_TOL: f64 = 1e-6;
 pub const DEFAULT_ITERMAX: usize = 50;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum SolverError {
     MaxIterReached,
+    NotANumber,
     IncorrectInput,
     BadJacobian
 }
+
+pub type SolverResult<T> = Result<T, SolverError>;
