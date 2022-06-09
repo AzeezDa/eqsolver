@@ -5,6 +5,8 @@ mod multinewton;
 mod multinewton_fd;
 mod gaussnewton;
 mod gaussnewton_fd;
+mod ode_solver;
+
 
 pub mod single_variable {
     pub use super::{
@@ -23,6 +25,7 @@ pub mod multivariable {
     };
 }
 
+pub use ode_solver::ODESolver;
 
 pub const DEFAULT_TOL: f64 = 1e-6;
 pub const DEFAULT_ITERMAX: usize = 50;
@@ -32,7 +35,13 @@ pub enum SolverError {
     MaxIterReached,
     NotANumber,
     IncorrectInput,
-    BadJacobian
+    BadJacobian,
+}
+
+pub enum ODESolverMethod {
+    EulerForward,
+    Heun,
+    RungeKutta4
 }
 
 pub type SolverResult<T> = Result<T, SolverError>;
