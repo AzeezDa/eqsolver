@@ -2,9 +2,9 @@ use num_traits::Float;
 use std::ops::Fn;
 
 use super::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
-use crate::math::finite_differences::{backward, central, forward, FiniteDifferenceType};
+use super::finite_differences::{backward, central, forward, FiniteDifferenceType};
 
-/// # `FDNewton`
+/// # Newton-Raphson with Finite Differences
 /// 
 /// FDNewton solves an equation f(x) = 0 given the function f as a closure that takes a `Float` and ouputs a `Float`.
 /// This function uses the Newton-Raphson's method ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method)) but approximates the derivative in the iteration using finite differences.
@@ -17,13 +17,13 @@ use crate::math::finite_differences::{backward, central, forward, FiniteDifferen
 /// 
 /// **Default Step length for Finite Difference:** √(Machine Epsilon)
 /// 
-/// # Examples
+/// ## Examples
 /// 
-/// ## A solution exists
+/// ### A solution exists
 /// 
 /// ```
 /// // Want to solve x in cos(x) = sin(x). This is equivalent to solving x in cos(x) - sin(x) = 0.
-/// use eqsolver::solvers::single_variable::FDNewton;
+/// use eqsolver::single_variable::FDNewton;
 /// let f = |x: f64| x.cos() - x.sin();
 /// 
 /// // Solve with Newton's Method with finite differences. Error is less than 1E-6. Starting guess is around 0.8.
@@ -31,10 +31,10 @@ use crate::math::finite_differences::{backward, central, forward, FiniteDifferen
 /// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exact x = pi/4
 /// ```
 /// 
-/// ## A solution does not exist
+/// ### A solution does not exist
 /// 
 /// ```
-/// use eqsolver::solvers::{single_variable::FDNewton, SolverError};
+/// use eqsolver::{single_variable::FDNewton, SolverError};
 /// let f = |x: f64| x*x + 1.;
 /// 
 /// // Solve with Newton's Method with finite differences. Error is less than 1E-6. Starting guess is around 0.8.
@@ -58,7 +58,8 @@ where
     T: Float,
     F: Fn(T) -> T + Copy,
 {
-    /// # `new`
+    /// Set up the solver
+    ///
     /// Instantiates the solver using the given closure representing the function to find roots for.
     pub fn new(f: F) -> Self {
         Self {
@@ -70,14 +71,13 @@ where
         }
     }
 
-    /// # 'with_tol`
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
     /// **Default Tolerance:** 1e-6
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::single_variable::FDNewton;
+    /// use eqsolver::single_variable::FDNewton;
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = FDNewton::new(f)
     ///     .with_tol(1e-12)
@@ -90,14 +90,13 @@ where
         self
     }
 
-    /// # `with_itermax`
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
     /// **Default Max Iterations:** 50
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::{single_variable::FDNewton, SolverError};
+    /// use eqsolver::{single_variable::FDNewton, SolverError};
     /// 
     /// let f = |x: f64| x.powf(-x); // Solve x^-x = 0
     /// let solution = FDNewton::new(f)
@@ -110,15 +109,13 @@ where
         self
     }
 
-    /// # `with_fd_step_length`
-    /// 
     /// Updates the step length used in the finite difference
     /// 
     /// **Default Step length for Finite Difference:** √(Machine Epsilon)
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// # use eqsolver::solvers::single_variable::FDNewton;
+    /// # use eqsolver::single_variable::FDNewton;
     /// # let f = |x: f64| x.exp() - 2.; // Solve e^x = 2
     /// // -- snip --
     /// let solution = FDNewton::new(f)
@@ -131,18 +128,16 @@ where
         self
     }
 
-    /// # `with_finite_difference`
-    /// 
     /// Updates the type of finite difference used in the solver for derivative approximation.
     /// 
     /// There are 3 types available: `Forward`, `Backward` and `Central`.
     /// 
     /// **Default Finite Difference:** Central
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// # use eqsolver::solvers::{DEFAULT_TOL, single_variable::FDNewton};
-    /// use eqsolver::math::finite_differences::FiniteDifferenceType;
+    /// # use eqsolver::{DEFAULT_TOL, single_variable::FDNewton};
+    /// use eqsolver::finite_differences::FiniteDifferenceType;
     /// // -- snip --
     /// # let f = |x: f64| x.exp() - 2.; // Solve e^x = 2
     /// let solution = FDNewton::new(f)
@@ -159,12 +154,11 @@ where
         self
     }
 
-    /// # `solve`
     /// Solves x in f(x) = 0 where f is the stored function.
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::{DEFAULT_TOL, single_variable::FDNewton};
+    /// use eqsolver::{DEFAULT_TOL, single_variable::FDNewton};
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = FDNewton::new(f)
     ///     .solve(1.4)
