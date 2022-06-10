@@ -1,6 +1,7 @@
-pub mod math;
-pub mod solvers;
+mod solvers;
 pub extern crate nalgebra;
+
+pub use solvers::*;
 
 #[cfg(test)]
 mod tests;

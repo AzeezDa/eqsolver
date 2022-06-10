@@ -3,7 +3,7 @@ use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
 use std::ops::Fn;
 
 
-/// # `Secant`
+/// # Secant Method
 /// 
 /// Secant solves an equation f(x) = 0 given the function f as a closure that takes a `Float` and ouputs a `Float`.
 /// This function uses the Secant method ([Wikipedia](https://en.wikipedia.org/wiki/Secant_method)).
@@ -12,13 +12,13 @@ use std::ops::Fn;
 /// 
 /// **Default Max Iterations:** 50
 /// 
-/// # Examples
+/// ## Examples
 /// 
-/// ## A solution exists
+/// ### A solution exists
 /// 
 /// ```
 /// // Want to solve x in cos(x) = sin(x). This is equivalent to solving x in cos(x) - sin(x) = 0.
-/// use eqsolver::solvers::single_variable::Secant;
+/// use eqsolver::single_variable::Secant;
 /// let f = |x: f64| x.cos() - x.sin();
 /// 
 /// // Solve with Secant Method. Error is less than 1E-6. Starting guesses is 0.7 and 0.8.
@@ -29,10 +29,10 @@ use std::ops::Fn;
 /// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exact x = pi/4
 /// ```
 /// 
-/// ## A solution does not exist
+/// ### A solution does not exist
 /// 
 /// ```
-/// use eqsolver::solvers::{single_variable::Secant, SolverError};
+/// use eqsolver::{single_variable::Secant, SolverError};
 /// let f = |x: f64| x*x + 1.;
 /// 
 /// // Solve with Secant Method. Error is less than 1E-6. Starting guesses is 0 and 1
@@ -54,7 +54,8 @@ where
     T: Float,
     F: Fn(T) -> T,
 {
-    /// # `new`
+    /// Set up the solver
+    /// 
     /// Instantiates the solver using the given closure representing the function `f` to find roots for.
     pub fn new(f: F) -> Self {
         Self {
@@ -63,15 +64,13 @@ where
             iter_max: DEFAULT_ITERMAX,
         }
     }
-
-    /// # 'with_tol`
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
     /// **Default Tolerance:** 1e-6
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::single_variable::Secant;
+    /// use eqsolver::single_variable::Secant;
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = Secant::new(f)
     ///     .with_tol(1e-12)
@@ -84,14 +83,13 @@ where
         self
     }
 
-    /// # `with_itermax`
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
     /// **Default Max Iterations:** 50
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::{single_variable::Secant, SolverError};
+    /// use eqsolver::{single_variable::Secant, SolverError};
     /// 
     /// let f = |x: f64| x.powf(-x); // Solve x^-x = 0
     /// let solution = Secant::new(f)
@@ -104,12 +102,12 @@ where
         self
     }
 
-    /// # `solve`
+
     /// Solves x in f(x) = 0 where f is the stored function.
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::{DEFAULT_TOL, single_variable::Secant};
+    /// use eqsolver::{DEFAULT_TOL, single_variable::Secant};
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = Secant::new(f)
     ///     .solve(1.4, 1.5)
@@ -119,7 +117,7 @@ where
     /// 
     /// Giving the same point as starting guesses
     /// ```
-    /// use eqsolver::solvers::{DEFAULT_TOL, single_variable::Secant, SolverError};
+    /// use eqsolver::{DEFAULT_TOL, single_variable::Secant, SolverError};
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = Secant::new(f)
     ///     .solve(1.4, 1.4);

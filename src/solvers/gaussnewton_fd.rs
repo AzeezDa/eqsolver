@@ -4,7 +4,8 @@ use nalgebra::{SMatrix, SVector};
 use num_traits::{Float, Signed};
 use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
 
-/// # `GaussNewtonFD`
+/// # Gauss-Newton with Finite Differences 
+/// 
 /// Solves x in a system of equation F(x) = 0 (where F: Rm ⟶ Rn) by minimizing ||F(x)|| in a Least Square Sense using The Gauss-Newton algorithm ([Wikipedia](https://en.wikipedia.org/wiki/Gauss%E2%80%93Newton_algorithm)). This struct uses a closure that takes a nalgebra vector (size m) and outputs a nalgebra vector (size n) to represent the overdetermined system of equations. The struct approximates the Jacobian using finite differences.
 /// 
 /// **Default Tolerance:** 1e-6
@@ -27,7 +28,8 @@ where
     F: Fn(SVector<T, R>) -> SVector<T, C>,
 {
 
-    /// # `new`
+    /// Create a new instance of the algorithm
+    /// 
     /// Instantiates the Gauss-Newton algorithm using the system of equation F and its Jacobian J.
     pub fn new(f: F) -> Self {
         Self {
@@ -38,7 +40,6 @@ where
         }
     }
 
-    /// # 'with_tol`
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
     /// **Default Tolerance:** 1e-6
@@ -47,7 +48,6 @@ where
         self
     }
 
-    /// # `with_itermax`
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
     /// **Default Max Iterations:** 50
@@ -56,8 +56,6 @@ where
         self
     }
 
-    /// # `with_fd_step_length`
-    /// 
     /// Updates the step length used in the finite difference
     /// 
     /// **Default Step length for Finite Difference:** √(Machine Epsilon)
@@ -66,7 +64,8 @@ where
         self
     }
 
-    /// # `solve`
+    /// Run the algorithm
+    /// 
     /// Finds x such that ||F(x)|| is minimized where F is the overdetermined system of equations.
     pub fn solve(&self, mut x0: SVector<T, R>) -> Result<SVector<T, R>, SolverError> {
         let mut dv: SVector<T, R> = SVector::repeat(T::max_value()); // We assume error vector is infinitely long at the start

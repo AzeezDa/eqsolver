@@ -4,7 +4,7 @@ use nalgebra::{SMatrix, SVector};
 use num_traits::{Float, Signed};
 use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
 
-/// # `MultiVarNewtonFD`
+/// # Multivarite Newton-Raphson with Finite Differences
 /// 
 /// This struct finds x such that F(x) = 0 where F: Rn ⟶ Rn is a vectorial function. The vector x is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct approximates the Jacobian using finite differences. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
 /// 
@@ -12,10 +12,10 @@ use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
 /// 
 /// **Default Max Iterations:** 50
 /// 
-/// # Examples
+/// ## Examples
 /// 
 /// ```
-/// use eqsolver::solvers::multivariable::MultiVarNewtonFD;
+/// use eqsolver::multivariable::MultiVarNewtonFD;
 /// use nalgebra::{Vector2, Matrix2};
 /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
 /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
@@ -46,12 +46,13 @@ where
     T: Float + ComplexField + Signed,
     F: Fn(SVector<T, S>) -> SVector<T, S>,
 {
-    /// # `new`
+    /// Set up the solver
+    /// 
     /// Instantiate the solver using the given vectorial function `F` that is closure that takes a nalgebra vector and outputs a nalgebra vector of the same size.
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::multivariable::MultiVarNewtonFD;
+    /// use eqsolver::multivariable::MultiVarNewtonFD;
     /// use nalgebra::{Vector2, Matrix2};
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
@@ -67,14 +68,13 @@ where
         }
     }
 
-    /// # 'with_tol`
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
     /// **Default Tolerance:** 1e-6
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// use eqsolver::solvers::multivariable::MultiVarNewtonFD;
+    /// use eqsolver::multivariable::MultiVarNewtonFD;
     /// use nalgebra::{Vector2, Matrix2};
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
@@ -93,8 +93,6 @@ where
         self.tolerance = tol;
         self
     }
-
-    /// # `with_itermax`
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
     /// **Default Max Iterations:** 50
@@ -103,15 +101,13 @@ where
         self
     }
 
-    /// # `with_fd_step_length`
-    /// 
     /// Updates the step length used in the finite difference
     /// 
     /// **Default Step length for Finite Difference:** √(Machine Epsilon)
     /// 
-    /// # Examples
+    /// ## Examples
     /// ```
-    /// # use eqsolver::solvers::multivariable::MultiVarNewtonFD;
+    /// # use eqsolver::multivariable::MultiVarNewtonFD;
     /// # use nalgebra::{Vector2, Matrix2};
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// # let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
@@ -129,15 +125,14 @@ where
         self
     }
 
-    /// # `solve`
     /// Solves x in f(x) = 0 where f is the stored function.
     /// 
-    /// # Examples
+    /// ## Examples
     /// 
-    /// ## Solution working
+    /// ### Solution working
     /// 
     /// ```
-    /// use eqsolver::solvers::multivariable::MultiVarNewtonFD;
+    /// use eqsolver::multivariable::MultiVarNewtonFD;
     /// use nalgebra::{Vector2, Matrix2};
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
@@ -153,10 +148,10 @@ where
     /// assert!((solution - SOLUTION).norm() <= 1e-6);
     /// ```
     /// 
-    /// ## Bad Jacobian Error
+    /// ### Bad Jacobian Error
     /// 
     /// ```
-    /// use eqsolver::solvers::{multivariable::MultiVarNewtonFD, SolverError};
+    /// use eqsolver::{multivariable::MultiVarNewtonFD, SolverError};
     /// use nalgebra::{Vector2, Matrix2};
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0] + v[1], v[0]*v[1]);

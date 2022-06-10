@@ -6,11 +6,11 @@ description = "A library that solves equations using numerical methods"
 repository = "https://github.com/AzeezDa/eqsolver"
 license = "MIT"
 readme = "README.md"
-keywords = ["equation", "solver", "math"]
-categories = ["science", "mathematics"]
+keywords = ["equation", "solver", "mathematics", "ode"]
+categories = ["science", "mathematics", "algorithms"]
 
 [badges]
-maintenance = { status = "actively-developed" }
+maintenance = { status = "passively-maintained" }
 
 [lib]
 name = "eqsolver"

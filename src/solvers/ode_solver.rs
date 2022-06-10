@@ -4,18 +4,19 @@ use nalgebra::{ClosedAdd, ClosedMul};
 use num_traits::Float;
 #[allow(dead_code)]
 
-/// # `ODESolver`
+/// # General ODE solver for Initial Value Problems
+/// 
 /// Solves first order ODE systems of equations in form of Initial Value Problem.
 /// Given functions F(x) that are closures of the form |x, y| where x is a `Float` and y is either a `Float` or nalgebra `Vector` representing the system of first order ODEs.
 ///
 /// This Solver includes 3 explicit numerical methods for solving ODEs, Euler Forward, Heun's (Runge-Kutta 2) and Runge-Kutta 4. The default is Runge-Kutta 4.
 ///
-/// # Examples
+/// ## Examples
 ///
-/// ## First Order ODE (no system)
+/// ### First Order ODE (no system)
 ///
 /// ```rust
-/// use eqsolver::solvers::ODESolver;
+/// use eqsolver::ODESolver;
 /// // ODE: y' = -y. where y(0) = 1
 /// let f = |x: f64, y: f64| -y;
 /// let (x0, y0) = (0., 1.);
@@ -27,10 +28,10 @@ use num_traits::Float;
 /// assert!((solution - (-1_f64).exp()) <= 1e-3);
 /// ```
 ///
-/// ## System of ODEs
+/// ### System of ODEs
 /// 
 /// ```rust
-/// use eqsolver::solvers::ODESolver;
+/// use eqsolver::ODESolver;
 /// use nalgebra::Vector2;
 /// // ODE: y' = -y. where y(0) = 1
 /// let f = |t: f64, v: Vector2<f64>| Vector2::new(v[1], v[1]-v[0]); // System {v0 =  y1
@@ -65,14 +66,15 @@ where
     V: ClosedAdd + ClosedMul<T> + Copy,
     F: Fn(T, V) -> V,
 {
-    /// # `new`
+    /// Set up the solver with the inital value problem
+    /// 
     /// Instantiate the ODESolver given the derivative function F(x, Y) that represents the equation or the system, the initial values and the step size.
     ///
-    /// # Examples
+    /// ## Examples
     ///
     /// Given the equation y' = t*y, where y(0) = 1.
     /// ```rust
-    /// # use eqsolver::solvers::ODESolver;
+    /// # use eqsolver::ODESolver;
     ///
     /// let f = |t: f64, y: f64| t*y; // f(t, y) = y' = t*y
     /// let (x0, y0) = (0., 1.); // y0 = y(x0) = y(0) = 1
@@ -91,16 +93,16 @@ where
         }
     }
 
-    /// # `solve`
+    /// Solve the IVP
     ///
     /// Solve the equation (or system) at `x_end` using the numerical method of the solver.
     ///
-    /// # Examples
+    /// ## Examples
     ///
     /// ## First Order ODE (no system)
     ///
     /// ```rust
-    /// use eqsolver::solvers::ODESolver;
+    /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
     /// let (x0, y0) = (0., 1.);
@@ -115,7 +117,7 @@ where
     /// ## System of ODEs
     /// 
     /// ```rust
-    /// use eqsolver::solvers::ODESolver;
+    /// use eqsolver::ODESolver;
     /// use nalgebra::Vector2;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |t: f64, v: Vector2<f64>| Vector2::new(v[1], v[1]-v[0]); // System {v0 =  y1
@@ -146,13 +148,11 @@ where
         Ok(y)
     }
 
-    /// # `with_step_size`
-    ///
     /// Change the solver's step size
     ///
-    /// # Examples
+    /// ## Examples
     /// ```rust
-    /// use eqsolver::solvers::ODESolver;
+    /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
     /// let (x0, y0) = (0., 1.);
@@ -174,14 +174,14 @@ where
         self
     }
 
-    /// # `with_steps`
+    /// Change step size given amount of steps
     ///
     /// Specify the end value you want to evaluate at and the amount steps to be taken to that end value.
     /// This will change the inner step size according to that given data.
     ///
-    /// # Examples
+    /// ## Examples
     /// ```rust
-    /// use eqsolver::solvers::ODESolver;
+    /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
     /// let (x0, y0) = (0., 1.);
@@ -203,15 +203,13 @@ where
         self
     }
 
-    /// # `with_method`
-    ///
     /// Specify the method to use for solving the ODE.
     ///
     /// There are 3 methods available Euler Forward, Heun and Runge-Kutta 4.
     /// The default is Runge-Kutta 4.
     ///
     /// ```rust
-    /// use eqsolver::solvers::{ODESolver, ODESolverMethod};
+    /// use eqsolver::{ODESolver, ODESolverMethod};
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
     /// let (x0, y0) = (0., 1.);
