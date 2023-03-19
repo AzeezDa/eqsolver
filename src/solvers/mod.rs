@@ -1,3 +1,5 @@
+use nalgebra::{Vector, Matrix, DefaultAllocator, allocator::Allocator};
+
 mod secant;
 mod newton;
 mod fdnewton;
@@ -71,4 +73,7 @@ pub enum ODESolverMethod {
     RungeKutta4
 }
 
-type SolverResult<T> = Result<T, SolverError>;
+pub type SolverResult<T> = Result<T, SolverError>;
+
+type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<T, D>>::Buffer>;
+type MatrixType<T, D> = Matrix<T, D, D, <DefaultAllocator as Allocator<T, D, D>>::Buffer>;
