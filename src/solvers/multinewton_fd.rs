@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 
-use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
+use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 #[allow(dead_code)]
 use nalgebra::ComplexField;
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, DimName};
+use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, Const};
 use num_traits::{Float, Signed};
 
 /// # Multivarite Newton-Raphson with Finite Differences
@@ -34,10 +34,10 @@ use num_traits::{Float, Signed};
 /// ```
 pub struct MultiVarNewtonFD<T, D, F>
 where
-    T: Float + ComplexField + Signed,
-    D: Dim + DimName,
+    T: Float + ComplexField<RealField = T> + Signed,
+    D: Dim,
     F: Fn(VectorType<T, D>) -> VectorType<T, D>,
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D> + Allocator<T, Const<1>, D>,
 {
     f: F,
     h: T,
@@ -48,10 +48,10 @@ where
 
 impl<T, D, F> MultiVarNewtonFD<T, D, F>
 where
-    T: Float + ComplexField + Signed,
-    D: Dim + DimName,
+    T: Float + ComplexField<RealField = T> + Signed,
+    D: Dim,
     F: Fn(VectorType<T, D>) -> VectorType<T, D>,
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D> + Allocator<T, Const<1>, D>,
 {
     /// Set up the solver
     /// 
@@ -172,12 +172,13 @@ where
     /// assert_eq!(solution.err().unwrap(), SolverError::BadJacobian);
     /// ```
     pub fn solve(&self, mut x0: VectorType<T, D>) -> Result<VectorType<T, D>, SolverError> {
-        let mut dv = VectorType::<T, D>::repeat(T::max_value()); // We assume error vector is infinitely long at the start
+        let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
         let dim = x0.nrows();
-
+        let zero = (x0.clone() * x0.clone().transpose()).scale(T::zero());
+        
         while dv.abs().max() > self.tolerance && iter < self.iter_max {
-            let mut j: MatrixType<T, D> = MatrixType::<T, D>::zeros(); // Jacobian, will be approximated below
+            let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 
             // Approximate Jacobi using forward finite difference

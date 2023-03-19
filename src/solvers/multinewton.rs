@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, DimName};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar};
 use num_traits::{Float, Signed};
 
 use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
@@ -38,8 +38,8 @@ use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 pub struct MultiVarNewton<T, D, F, J>
 where
     T: Float + Scalar + ComplexField + Signed,
-    D: Dim + DimName,
-    J: Fn(VectorType<T, D>) -> MatrixType<T, D>,
+    D: Dim,
+    J: Fn(VectorType<T, D>) -> MatrixType<T, D, D>,
     F: Fn(VectorType<T, D>) -> VectorType<T, D>,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
@@ -52,9 +52,9 @@ where
 
 impl<T, D, F, J> MultiVarNewton<T, D, F, J>
 where
-    T: Float + Scalar + ComplexField + Signed,
-    D: Dim + DimName,
-    J: Fn(VectorType<T, D>) -> MatrixType<T, D>,
+    T: Float + Scalar + ComplexField<RealField = T> + Signed,
+    D: Dim,
+    J: Fn(VectorType<T, D>) -> MatrixType<T, D, D>,
     F: Fn(VectorType<T, D>) -> VectorType<T, D>,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
@@ -171,7 +171,7 @@ where
     /// assert_eq!(solution.err().unwrap(), SolverError::BadJacobian);
     /// ```
     pub fn solve(&self, mut x0: VectorType<T, D>) -> Result<VectorType<T, D>, SolverError> {
-        let mut dv = VectorType::<T,D>::repeat(T::max_value()); // We assume error vector is infinitely long at the start
+        let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
 
         // Newton-Raphson Iteration

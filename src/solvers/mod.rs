@@ -76,4 +76,4 @@ pub enum ODESolverMethod {
 pub type SolverResult<T> = Result<T, SolverError>;
 
 type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<T, D>>::Buffer>;
-type MatrixType<T, D> = Matrix<T, D, D, <DefaultAllocator as Allocator<T, D, D>>::Buffer>;
+type MatrixType<T, R, C> = Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer>;

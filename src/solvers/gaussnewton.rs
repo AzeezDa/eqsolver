@@ -1,8 +1,10 @@
+use std::marker::PhantomData;
+
 #[allow(dead_code)]
 use nalgebra::ComplexField;
-use nalgebra::{SMatrix, SVector};
+use nalgebra::{Dim, DefaultAllocator, allocator::Allocator};
 use num_traits::{Signed, Float};
-use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
+use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType, MatrixType};
 
 /// # Gauss-Newton
 /// 
@@ -11,23 +13,31 @@ use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
 /// **Default Tolerance:** 1e-6
 /// 
 /// **Default Max Iterations:** 50
-pub struct GaussNewton<T, F, J, const R: usize, const C: usize>
+pub struct GaussNewton<T, R, C, F, J>
 where
-    T: Float + ComplexField + Signed,
-    F: Fn(SVector<T, C>) -> SVector<T, R>,
-    J: Fn(SVector<T, C>) -> SMatrix<T, R, C>,
+    T: Float + ComplexField<RealField = T> + Signed,
+    R: Dim,
+    C: Dim,
+    F: Fn(VectorType<T, C>) -> VectorType<T, R>,
+    J: Fn(VectorType<T, C>) -> MatrixType<T, R, C>,
+    DefaultAllocator: Allocator<T, C> + Allocator<T, R> + Allocator<T, R, C> + Allocator<T, C, R> + Allocator<T, C, C>,
 {
     f: F,
     j: J,
     tolerance: T,
     iter_max: usize,
+    r_phantom: PhantomData<R>,
+    c_phantom: PhantomData<C>
 }
 
-impl<T, F, J, const R: usize, const C: usize> GaussNewton<T, F, J, R, C>
+impl<T, R, C, F, J> GaussNewton<T, R, C, F, J>
 where
-    T: Float + ComplexField + Signed,
-    F: Fn(SVector<T, C>) -> SVector<T, R>,
-    J: Fn(SVector<T, C>) -> SMatrix<T, R, C>,
+    T: Float + ComplexField<RealField = T> + Signed,
+    R: Dim,
+    C: Dim,
+    F: Fn(VectorType<T, C>) -> VectorType<T, R>,
+    J: Fn(VectorType<T, C>) -> MatrixType<T, R, C>,
+    DefaultAllocator: Allocator<T, C> + Allocator<T, R> + Allocator<T, R, C> + Allocator<T, C, R> + Allocator<T, C, C>,
 {
     /// Create a new instance of the algorithm
     /// 
@@ -38,6 +48,8 @@ where
             j,
             tolerance: T::from(DEFAULT_TOL).unwrap(),
             iter_max: DEFAULT_ITERMAX,
+            r_phantom: PhantomData,
+            c_phantom: PhantomData
         }
     }
 
@@ -60,17 +72,18 @@ where
     /// Run the algorithm
     /// 
     /// Finds x such that ||F(x)|| is minimized where F is the overdetermined system of equations. 
-    pub fn solve(&self, mut x0: SVector<T, C>) -> Result<SVector<T, C>, SolverError> {
-        let mut dv: SVector<T, C> = SVector::repeat(T::max_value()); // We assume error vector is infinitely long at the start
+    pub fn solve(&self, mut x0: VectorType<T, C>) -> Result<VectorType<T, C>, SolverError> {
+        let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
 
+        
         // Gauss Newton Iteration
         while dv.abs().max() > self.tolerance && iter < self.iter_max {
-            let j = (self.j)(x0);
+            let j = (self.j)(x0.clone());
             let jt = j.transpose();
-            if let Some(jtj_inv) = (jt*j).try_inverse() {
-                dv = jtj_inv * jt * (self.f)(x0);
-                x0 = x0 - dv;
+            if let Some(jtj_inv) = (jt.clone()*j).try_inverse() {
+                dv = jtj_inv * jt * (self.f)(x0.clone());
+                x0 = x0 - dv.clone();
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);
