@@ -1,6 +1,6 @@
 [package]
 name = "eqsolver"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "A library that solves equations using numerical methods"
 repository = "https://github.com/AzeezDa/eqsolver"
@@ -16,8 +16,6 @@ maintenance = { status = "passively-maintained" }
 name = "eqsolver"
 path = "src/lib.rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-nalgebra = "0.31.0"
+nalgebra = "0.32.2"
 num-traits = "0.2.15"
