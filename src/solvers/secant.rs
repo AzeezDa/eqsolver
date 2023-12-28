@@ -5,12 +5,12 @@ use std::ops::Fn;
 
 /// # Secant Method
 /// 
-/// Secant solves an equation f(x) = 0 given the function f as a closure that takes a `Float` and ouputs a `Float`.
+/// Secant solves an equation `f(x) = 0` given the function `f` as a closure that takes a `Float` and outputs a `Float`.
 /// This function uses the Secant method ([Wikipedia](https://en.wikipedia.org/wiki/Secant_method)).
 /// 
-/// **Default Tolerance:** 1e-6
+/// **Default Tolerance:** `1e-6`
 /// 
-/// **Default Max Iterations:** 50
+/// **Default Max Iterations:** `50`
 /// 
 /// ## Examples
 /// 
@@ -26,7 +26,7 @@ use std::ops::Fn;
 ///     .with_tol(1e-6)
 ///     .solve(0.7, 0.8)
 ///     .unwrap();
-/// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exact x = pi/4
+/// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exactly x = pi/4
 /// ```
 /// 
 /// ### A solution does not exist
@@ -37,7 +37,7 @@ use std::ops::Fn;
 /// 
 /// // Solve with Secant Method. Error is less than 1E-6. Starting guesses is 0 and 1
 /// let solution = Secant::new(f).solve(0., 1.);
-/// assert_eq!(solution.err().unwrap(), SolverError::NotANumber); // No solution. Will diverge
+/// assert_eq!(solution.err().unwrap(), SolverError::NotANumber); // No solution, will diverge
 /// ```
 pub struct Secant<T, F>
 where
@@ -56,7 +56,7 @@ where
 {
     /// Set up the solver
     /// 
-    /// Instantiates the solver using the given closure representing the function `f` to find roots for.
+    /// Instantiates the solver using the given closure representing the function `f` to find the roots for.
     pub fn new(f: F) -> Self {
         Self {
             f,
@@ -66,7 +66,7 @@ where
     }
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
-    /// **Default Tolerance:** 1e-6
+    /// **Default Tolerance:** `1e-6`
     /// 
     /// ## Examples
     /// ```
@@ -85,7 +85,7 @@ where
 
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
-    /// **Default Max Iterations:** 50
+    /// **Default Max Iterations:** `50`
     /// 
     /// ## Examples
     /// ```
@@ -103,7 +103,7 @@ where
     }
 
 
-    /// Solves x in f(x) = 0 where f is the stored function.
+    /// Solves for `x` in `f(x) = 0` where `f` is the stored function.
     /// 
     /// ## Examples
     /// ```

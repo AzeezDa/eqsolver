@@ -6,13 +6,13 @@ use nalgebra::ComplexField;
 use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, Const};
 use num_traits::{Float, Signed};
 
-/// # Multivarite Newton-Raphson with Finite Differences
+/// # Multivariate Newton-Raphson with Finite Differences
 /// 
-/// This struct finds x such that F(x) = 0 where F: Rn ⟶ Rn is a vectorial function. The vector x is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct approximates the Jacobian using finite differences. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
+/// This struct finds `x` such that `F(x) = 0` where `F: Rn ⟶ Rn` is a vectorial function. The vector `x` is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct approximates the Jacobian using finite differences. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
 ///
-/// **Default Tolerance:** 1e-6
+/// **Default Tolerance:** `1e-6`
 ///
-/// **Default Max Iterations:** 50
+/// **Default Max Iterations:** `50`
 /// 
 /// ## Examples
 /// 
@@ -22,7 +22,7 @@ use num_traits::{Float, Signed};
 /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
 /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
 ///
-/// // Solved analytically but form was ugly so here is approximation
+/// // Solved analytically but its form was ugly so here is an approximation
 /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
 ///
 /// let solution = MultiVarNewtonFD::new(F)
@@ -78,7 +78,7 @@ where
 
     /// Updates the solver's tolerance (Magnitude of Error).
     ///
-    /// **Default Tolerance:** 1e-6
+    /// **Default Tolerance:** `1e-6`
     /// 
     /// ## Examples
     /// ```
@@ -87,7 +87,7 @@ where
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
     ///
-    /// // Solved analytically but form was ugly so here is approximation
+    /// // Solved analytically but its form was ugly so here is an approximation
     /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
     ///
     /// let solution = MultiVarNewtonFD::new(F)
@@ -103,7 +103,7 @@ where
     }
     /// Updates the solver's amount of iterations done before terminating the iteration
     ///
-    /// **Default Max Iterations:** 50
+    /// **Default Max Iterations:** `50`
     pub fn with_itermax(&mut self, max: usize) -> &mut Self {
         self.iter_max = max;
         self
@@ -111,7 +111,7 @@ where
 
     /// Updates the step length used in the finite difference
     ///
-    /// **Default Step length for Finite Difference:** √(Machine Epsilon)
+    /// **Default Step length for Finite Difference:** `√(Machine Epsilon)`
     /// 
     /// ## Examples
     /// ```
@@ -120,7 +120,7 @@ where
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// # let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
     ///
-    /// // Solved analytically but form was ugly so here is approximation
+    /// // Solved analytically but its form was ugly so here is an approximation
     /// # const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
     ///
     /// let solution = MultiVarNewtonFD::new(F)
@@ -133,11 +133,11 @@ where
         self
     }
 
-    /// Solves x in f(x) = 0 where f is the stored function.
+    /// Solves for `x` in `f(x) = 0` where `f` is the stored function.
     /// 
     /// ## Examples
     /// 
-    /// ### Solution working
+    /// ### Working solution
     /// 
     /// ```
     /// use eqsolver::multivariable::MultiVarNewtonFD;
@@ -145,7 +145,7 @@ where
     /// // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2). Want to solve x^2 - y = 1 and xy = 2
     /// let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
     ///
-    /// // Solved analytically but form was ugly so here is approximation
+    /// // Solved analytically but its form was ugly so here is an approximation
     /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
     ///
     /// let solution = MultiVarNewtonFD::new(F)
@@ -181,7 +181,7 @@ where
             let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 
-            // Approximate Jacobi using forward finite difference
+            // Approximate Jacobian using forward finite difference
             for i in 0..dim {
                 let mut x_h = x0.clone();
                 x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter

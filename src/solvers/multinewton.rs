@@ -7,11 +7,11 @@ use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 
 /// # Multivariate Newton-Raphson
 /// 
-/// This struct finds x such that F(x) = 0 where F: Rn ⟶ Rn is a vectorial function. The vector x is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct requires the Jacobian Matrix of F this is given as nalgebra Matrix. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
+/// This struct finds `x` such that `F(x) = 0` where `F: Rn ⟶ Rn` is a vectorial function. The vector x is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct requires the Jacobian Matrix of `F` this is given as nalgebra Matrix. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
 ///
-/// **Default Tolerance:** 1e-6
+/// **Default Tolerance:** `1e-6`
 ///
-/// **Default Max Iterations:** 50
+/// **Default Max Iterations:** `50`
 /// 
 /// ## Examples
 /// 
@@ -25,7 +25,7 @@ use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 /// let J = |v: Vector2<f64>| Matrix2::new(2. * v[0], -1.,
 ///                                             v[1], v[0]);
 ///
-/// // Solved analytically but form was ugly so here is approximation
+/// // Solved analytically but its form was ugly so here is an approximation
 /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
 ///
 /// let solution = MultiVarNewton::new(F, J)
@@ -89,7 +89,7 @@ where
 
     /// Updates the solver's tolerance (Magnitude of Error).
     ///
-    /// **Default Tolerance:** 1e-6
+    /// **Default Tolerance:** `1e-6`
     /// 
     /// ## Examples
     /// ```
@@ -102,7 +102,7 @@ where
     /// let J = |v: Vector2<f64>| Matrix2::new(2. * v[0], -1.,
     ///                                             v[1], v[0]);
     ///
-    /// // Solved analytically but form was ugly so here is approximation
+    /// // Solved analytically but its form was ugly so here is an approximation
     /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
     ///
     /// let solution = MultiVarNewton::new(F, J)
@@ -119,17 +119,17 @@ where
 
     /// Updates the solver's amount of iterations done before terminating the iteration
     ///
-    /// **Default Max Iterations:** 50
+    /// **Default Max Iterations:** `50`
     pub fn with_itermax(&mut self, max: usize) -> &mut Self {
         self.iter_max = max;
         self
     }
 
-    /// Solves x in F(x) = 0 where F is the stored function.
+    /// Solves for `x` in `F(x) = 0` where `F` is the stored function.
     /// 
     /// ## Examples
     /// 
-    /// ### Solution working
+    /// ### Working solution
     /// 
     /// ```
     /// use eqsolver::multivariable::MultiVarNewton;
@@ -141,7 +141,7 @@ where
     /// let J = |v: Vector2<f64>| Matrix2::new(2. * v[0], -1.,
     ///                                             v[1], v[0]);
     ///
-    /// // Solved analytically but form was ugly so here is approximation
+    /// // Solved analytically but its form was ugly so here is an approximation
     /// const SOLUTION: Vector2<f64> = Vector2::new(1.521379706804567569604081, 1.314596212276751981650111);
     ///
     /// let solution = MultiVarNewton::new(F, J)

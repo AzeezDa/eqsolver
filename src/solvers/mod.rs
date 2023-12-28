@@ -62,7 +62,7 @@ pub enum ODESolverMethod {
     /// Order of accuracy: 1
     EulerForward,
 
-    /// Heun's Method (aka Runge-Kutta 2), ([Wikipedia](https://en.wikipedia.org/wiki/Heun%27s_method))
+    /// Heun's Method (also known as Runge-Kutta 2), ([Wikipedia](https://en.wikipedia.org/wiki/Heun%27s_method))
     /// 
     /// Order of accuracy: 2
     Heun,

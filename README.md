@@ -1,17 +1,26 @@
-# `eqsolver` - A Equation Solver library for Rust
+# `eqsolver` - An Equation Solver library for Rust
 
-This is a Rust Library aimed at applying Numerical Methods to solve Equations of many sorts.
+This is a Rust Library aimed at applying Numerical Methods to solve equations of many sorts.
 
-Currently the library provides methods for solving single and multivariate functions as well as Ordinary Differential Equations and systems of them.
+Currently the library provides methods for solving single and multivariate functions as well as Ordinary Differential Equations (ODE) and systems of ODEs.
 
-The library is **passively-maintained**, which means there will be no other features added however issues on the GitHub will be answered and solved.
+The library is **passively-maintained**, which means there will be no other features added. However, issues on the GitHub will be answered and solved.
 Contributions and feedback to this library are more than welcome! 
 
 ## Single Variable
 
 There are 2 types of root-finders for single variable functions, the Secant Method and Newton-Raphson's method, in which the latter can either be given the derivative of the function if available or the function can be approximated using finite differences.
 
-Example of Newton-Raphson's method with finite differences.
+### Example of Newton-Raphson's method.
+```rust
+use eqsolver::single_variable::Newton;
+let f = |x: f64| x.cos() - x.sin();
+let df = |x: f64| -x.sin() - x.cos(); // Derivative of f
+
+let solution = Newton::new(f, df).solve(0.8); // Starting guess is 0.8
+```
+
+### Example of Newton-Raphson's method with finite differences.
 ```rust
 use eqsolver::single_variable::FDNewton;
 
@@ -25,7 +34,7 @@ There is one root-finder for multivariate functions and that is Newton-Raphson's
 
 This part is heavily built using The Linear Algebra Library for Rust [nalgebra](https://nalgebra.org/).
 
-Example of Newton-Raphson's method for system of equations
+### Example of Newton-Raphson's method for system of equations
 ```rust 
 use eqsolver::multivariable::MultiVarNewton;
 use nalgebra::{Vector2, Matrix2};
@@ -34,9 +43,20 @@ let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2
  
 // Jacobian of F
 let J = |v: Vector2<f64>| Matrix2::new(2. * v[0], -1., 
-                                             v[1], v[0]);
+                                            v[1], v[0]);
 
-let solution = MultiVarNewton::new(F, J).solve(Vector2::new(1., 1.));
+let solution = MultiVarNewton::new(F, J).solve(Vector2::new(1., 1.)); // Starting guess is (1, 1)
+```
+
+
+### Example of Newton-Raphson's method with finite differences for system of equations
+```rust
+use eqsolver::multivariable::MultiVarNewtonFD;
+use nalgebra::{Vector2, Matrix2};
+// Want to solve x^2 - y = 1 and xy = 2
+let F = |v: Vector2<f64>| Vector2::new(v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.);
+
+let solution = MultiVarNewtonFD::new(F).solve(Vector2::new(1., 1.)); // Starting guess is (1, 1)
 ```
 
 ## Ordinary Differential Equations (or systems of them)

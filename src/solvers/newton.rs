@@ -4,12 +4,12 @@ use std::ops::Fn;
 
 /// # Newton-Raphson
 /// 
-/// Newton solves an equation f(x) = 0 given the function f as a closure that takes a `Float` and ouputs a `Float` as well as the derivative of f using the save form.
+/// Newton solves an equation `f(x) = 0` given the function `f` and its derivative `df` as closures that takes a `Float` and outputs a `Float`.
 /// This function uses the Newton-Raphson's method ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method)).
 /// 
-/// **Default Tolerance:** 1e-6
+/// **Default Tolerance:** `1e-6`
 /// 
-/// **Default Max Iterations:** 50
+/// **Default Max Iterations:** `50`
 /// 
 /// ## Examples
 /// 
@@ -26,7 +26,7 @@ use std::ops::Fn;
 ///     .with_tol(1e-6)
 ///     .solve(0.8)
 ///     .unwrap();
-/// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exact x = pi/4
+/// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exactly x = pi/4
 /// ```
 /// 
 /// ### A solution does not exist
@@ -36,9 +36,9 @@ use std::ops::Fn;
 /// let f = |x: f64| x*x + 1.;
 /// let df = |x: f64| 2.*x;
 /// 
-/// // Solve with Newton's Method. Error is less than 1E-6. Starting guess is around 1..
+/// // Solve with Newton's Method. Error is less than 1E-6. Starting guess is around 1.
 /// let solution = Newton::new(f, df).solve(1.);
-/// assert_eq!(solution.err().unwrap(), SolverError::NotANumber); // No solution. Will diverge
+/// assert_eq!(solution.err().unwrap(), SolverError::NotANumber); // No solution, will diverge
 /// ```
 pub struct Newton<T, F, D>
 where
@@ -73,7 +73,7 @@ where
 
     /// Updates the solver's tolerance (Magnitude of Error).
     /// 
-    /// **Default Tolerance:** 1e-6
+    /// **Default Tolerance:** `1e-6`
     /// 
     /// ## Examples
     /// ```
@@ -93,7 +93,7 @@ where
 
     /// Updates the solver's amount of iterations done before terminating the iteration
     /// 
-    /// **Default Max Iterations:** 50
+    /// **Default Max Iterations:** `50`
     /// 
     /// ## Examples
     /// ```
@@ -111,7 +111,7 @@ where
         self
     }
 
-    /// Solves x in f(x) = 0 where f is the stored function.
+    /// Solves for `x` in `f(x) = 0` where `f` is the stored function.
     /// 
     /// ## Examples
     /// ```

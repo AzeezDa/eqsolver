@@ -7,9 +7,9 @@ use num_traits::Float;
 /// # General ODE solver for Initial Value Problems
 /// 
 /// Solves first order ODE systems of equations in form of Initial Value Problem.
-/// Given functions F(x) that are closures of the form |x, y| where x is a `Float` and y is either a `Float` or nalgebra `Vector` representing the system of first order ODEs.
+/// Given a system of equations `F(x)` that is a closure of the form `|x, y|` where `x` is a `Float` and `y` is either a `Float` or nalgebra `Vector` representing the system of first order ODEs.
 ///
-/// This Solver includes 3 explicit numerical methods for solving ODEs, Euler Forward, Heun's (Runge-Kutta 2) and Runge-Kutta 4. The default is Runge-Kutta 4.
+/// This solver includes 3 explicit numerical methods for solving ODEs that are: Euler's Forward Method, Heun's Method (Runge-Kutta 2) and Runge-Kutta 4. The default is Runge-Kutta 4.
 ///
 /// ## Examples
 ///
@@ -30,7 +30,7 @@ use num_traits::Float;
 ///
 /// ### System of ODEs
 /// 
-/// ```rust
+/// ```
 /// use eqsolver::ODESolver;
 /// use nalgebra::Vector2;
 /// // ODE: y' = -y. where y(0) = 1
@@ -66,14 +66,14 @@ where
     V: ClosedAdd + ClosedMul<T> + Copy,
     F: Fn(T, V) -> V,
 {
-    /// Set up the solver with the inital value problem
+    /// Set up the solver with the initial value problem
     /// 
-    /// Instantiate the ODESolver given the derivative function F(x, Y) that represents the equation or the system, the initial values and the step size.
+    /// Instantiate the ODESolver given the derivative function `F(x, Y)` that represents the equation or the system, the initial values and the step size.
     ///
     /// ## Examples
     ///
-    /// Given the equation y' = t*y, where y(0) = 1.
-    /// ```rust
+    /// Given the equation `y' = t*y`, where `y(0) = 1`.
+    /// ```
     /// # use eqsolver::ODESolver;
     ///
     /// let f = |t: f64, y: f64| t*y; // f(t, y) = y' = t*y
@@ -93,7 +93,7 @@ where
         }
     }
 
-    /// Solve the IVP
+    /// Solve the Initial Value Problem
     ///
     /// Solve the equation (or system) at `x_end` using the numerical method of the solver.
     ///
@@ -101,7 +101,7 @@ where
     ///
     /// ## First Order ODE (no system)
     ///
-    /// ```rust
+    /// ```
     /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
@@ -116,7 +116,7 @@ where
     ///
     /// ## System of ODEs
     /// 
-    /// ```rust
+    /// ```
     /// use eqsolver::ODESolver;
     /// use nalgebra::Vector2;
     /// // ODE: y' = -y. where y(0) = 1
@@ -151,7 +151,7 @@ where
     /// Change the solver's step size
     ///
     /// ## Examples
-    /// ```rust
+    /// ```
     /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
@@ -180,7 +180,7 @@ where
     /// This will change the inner step size according to that given data.
     ///
     /// ## Examples
-    /// ```rust
+    /// ```
     /// use eqsolver::ODESolver;
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
@@ -205,10 +205,10 @@ where
 
     /// Specify the method to use for solving the ODE.
     ///
-    /// There are 3 methods available Euler Forward, Heun and Runge-Kutta 4.
+    /// There are 3 methods available: Euler Forward, Heun and Runge-Kutta 4.
     /// The default is Runge-Kutta 4.
     ///
-    /// ```rust
+    /// ```
     /// use eqsolver::{ODESolver, ODESolverMethod};
     /// // ODE: y' = -y. where y(0) = 1
     /// let f = |x: f64, y: f64| -y;
