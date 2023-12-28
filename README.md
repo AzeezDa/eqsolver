@@ -87,3 +87,22 @@ let solution = solver.solve(x_end).unwrap();
 
 Note there is no explicit solver for higher order ODEs since higher order ODEs can be rewritten as a system of first order ODEs.
 The example above is equivalent to solving `y'' = t-y`.
+
+## Mutable Functions
+Sometimes the function to be solved requires mutation of its environment, for example saving the values that function was called with, or for memoization. This mutation behavior can be done using a `std::cell::RefCell` as in this example:
+
+```rust
+use std::cell::RefCell;
+let trace = RefCell::new(vec![]);
+let f = |x: f64| {
+    trace.borrow_mut().push(x);
+    x * x - 2.
+};
+
+let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).unwrap();
+
+// At this point the trace vector will be: 
+// [0.0, 2.0, 1.0, 1.3333333333333333, 1.4285714285714286, 1.4137931034482758, 1.41421143847487]
+```
+
+See [this issue](https://github.com/AzeezDa/eqsolver/issues/5) for the reasoning behind this technicality.

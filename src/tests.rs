@@ -6,7 +6,7 @@ use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector1, Vector2, V
 fn solve_secant() {
     let f = |x: f64| x * x - 2.;
 
-    let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).ok().unwrap();
+    let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).unwrap();
 
     assert!((solution - 2_f64.sqrt()).abs() <= 1e-3);
     assert!((solution - 2_f64.sqrt()).abs() > 1e-12);
@@ -18,7 +18,7 @@ fn solve_newton() {
     let df = |x: f64| x.cos() * 2. - 1.;
     const SOLUTION: f64 = 1.8954942670339809471; // From Wolfram Alpha
 
-    let solution = Newton::new(f, df).with_tol(1e-3).solve(2.).ok().unwrap();
+    let solution = Newton::new(f, df).with_tol(1e-3).solve(2.).unwrap();
 
     assert!((solution - SOLUTION).abs() <= 1e-3);
     assert!((solution - SOLUTION).abs() > 1e-12);
@@ -245,6 +245,20 @@ fn max_iter_reached_detection() {
 
     let solution = Secant::new(f).with_tol(1e-3).solve(3., 4.);
     assert_eq!(solution, Err(SolverError::MaxIterReached));
+}
+
+#[test]
+fn mutable_state_function() {
+    use std::cell::RefCell;
+    let trace = RefCell::new(vec![]);
+    let f = |x: f64| {
+        trace.borrow_mut().push(x);
+        x * x - 2.
+    };
+
+    let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).unwrap();
+    assert!((solution - 2_f64.sqrt()).abs() <= 1e-3);
+    assert!(trace.borrow().len() > 0);
 }
 
 #[test]
