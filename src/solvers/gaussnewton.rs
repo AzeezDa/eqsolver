@@ -7,11 +7,11 @@ use num_traits::{Signed, Float};
 use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType, MatrixType};
 
 /// # Gauss-Newton
-/// 
+///
 /// Solves x in a system of equation F(x) = 0 (where F: Rm ⟶ Rn) by minimizing ||F(x)|| in a Least Square Sense using The Gauss-Newton algorithm ([Wikipedia](https://en.wikipedia.org/wiki/Gauss%E2%80%93Newton_algorithm)). This struct uses a closure that takes a nalgebra vector (size m) and outputs a nalgebra vector (size n) to represent the overdetermined system of equations. The struct also uses the Jacobian of F, that is represented by a closure taking a nalgebra vector (size m) and outputs a nalgebra matrix of size n x m.
-/// 
+///
 /// **Default Tolerance:** 1e-6
-/// 
+///
 /// **Default Max Iterations:** 50
 pub struct GaussNewton<T, R, C, F, J>
 where
@@ -40,7 +40,7 @@ where
     DefaultAllocator: Allocator<T, C> + Allocator<T, R> + Allocator<T, R, C> + Allocator<T, C, R> + Allocator<T, C, C>,
 {
     /// Create a new instance of the algorithm
-    /// 
+    ///
     /// Instantiates the Gauss-Newton algorithm using the system of equation F and its Jacobian J.
     pub fn new(f: F, j: J) -> Self {
         Self {
@@ -54,7 +54,7 @@ where
     }
 
     /// Updates the solver's tolerance (Magnitude of Error).
-    /// 
+    ///
     /// **Default Tolerance:** 1e-6
     pub fn with_tol(&mut self, tol: T) -> &mut Self {
         self.tolerance = tol;
@@ -62,7 +62,7 @@ where
     }
 
     /// Updates the solver's amount of iterations done before terminating the iteration
-    /// 
+    ///
     /// **Default Max Iterations:** 50
     pub fn with_itermax(&mut self, max: usize) -> &mut Self {
         self.iter_max = max;
@@ -70,13 +70,13 @@ where
     }
 
     /// Run the algorithm
-    /// 
-    /// Finds x such that ||F(x)|| is minimized where F is the overdetermined system of equations. 
+    ///
+    /// Finds x such that ||F(x)|| is minimized where F is the overdetermined system of equations.
     pub fn solve(&self, mut x0: VectorType<T, C>) -> Result<VectorType<T, C>, SolverError> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
 
-        
+
         // Gauss Newton Iteration
         while dv.abs().max() > self.tolerance && iter < self.iter_max {
             let j = (self.j)(x0.clone());
@@ -90,7 +90,7 @@ where
             }
         }
 
-        if iter > self.iter_max {
+        if iter >= self.iter_max {
             return Err(SolverError::MaxIterReached);
         }
 

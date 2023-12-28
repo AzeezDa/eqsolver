@@ -1,6 +1,6 @@
 use crate::finite_differences::{backward, central, forward};
 use crate::{multivariable::*, single_variable::*, ODESolver, SolverError};
-use nalgebra::{vector, Matrix2, Matrix3x2, Vector2, Vector3, DVector, DMatrix};
+use nalgebra::{vector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3, DVector, DMatrix};
 
 #[test]
 fn solve_secant() {
@@ -184,9 +184,9 @@ fn dyn_gauss_newton() {
 
     let j = |v: DVector<f64>| {
         DMatrix::from_vec(3, 2, vec![
-            2. * (v[0] - c0[0]), 2. * (v[0] - c1[0]), 2. * (v[0] - c2[0]),
-            2. * (v[1] - c0[1]), 2. * (v[1] - c1[1]), 2. * (v[1] - c2[1]),
-        ])
+                2. * (v[0] - c0[0]), 2. * (v[0] - c1[0]), 2. * (v[0] - c2[0]),
+                2. * (v[1] - c0[1]), 2. * (v[1] - c1[1]), 2. * (v[1] - c2[1]),
+            ])
     };
 
     // Solved using Octave (Can also be checked visually in Desmos or similar)
@@ -206,6 +206,25 @@ fn dyn_gauss_newton() {
     assert!((SOLUTION - &solution_gn).norm() > 1e-12);
     assert!((SOLUTION - &solution_gn_fd).norm() <= 1e-3);
     assert!((SOLUTION - &solution_gn_fd).norm() > 1e-12);
+}
+
+#[test]
+fn max_iter_reached_detection() {
+    // "f(x)=x^2 + 1" has no roots, so solver can't ever converge
+    let f = |v: Vector1<f64>| Vector1::new(v[0].powi(2) + 1.0);
+    let j = |v: Vector1<f64>| Vector1::new(2. * v[0]);
+
+    let solution = MultiVarNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    let solution = MultiVarNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    let solution = GaussNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    let solution = GaussNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
 }
 
 #[test]

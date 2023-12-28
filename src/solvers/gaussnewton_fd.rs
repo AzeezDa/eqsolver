@@ -123,7 +123,7 @@ where
             }
         }
 
-        if iter > self.iter_max {
+        if iter >= self.iter_max {
             return Err(SolverError::MaxIterReached);
         }
 
