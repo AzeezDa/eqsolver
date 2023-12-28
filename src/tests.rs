@@ -1,6 +1,6 @@
 use crate::finite_differences::{backward, central, forward};
 use crate::{multivariable::*, single_variable::*, ODESolver, SolverError};
-use nalgebra::{vector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3, DVector, DMatrix};
+use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3};
 
 #[test]
 fn solve_secant() {
@@ -131,7 +131,6 @@ fn gauss_newton() {
     assert!((SOLUTION - solution_gn_fd).norm() > 1e-12);
 }
 
-
 #[test]
 fn dyn_multi_var_newton() {
     // Vectorial Function (x, y) ↦ (x^2-y-1, xy - 2)
@@ -183,10 +182,18 @@ fn dyn_gauss_newton() {
     };
 
     let j = |v: DVector<f64>| {
-        DMatrix::from_vec(3, 2, vec![
-                2. * (v[0] - c0[0]), 2. * (v[0] - c1[0]), 2. * (v[0] - c2[0]),
-                2. * (v[1] - c0[1]), 2. * (v[1] - c1[1]), 2. * (v[1] - c2[1]),
-            ])
+        DMatrix::from_vec(
+            3,
+            2,
+            vec![
+                2. * (v[0] - c0[0]),
+                2. * (v[0] - c1[0]),
+                2. * (v[0] - c2[0]),
+                2. * (v[1] - c0[1]),
+                2. * (v[1] - c1[1]),
+                2. * (v[1] - c2[1]),
+            ],
+        )
     };
 
     // Solved using Octave (Can also be checked visually in Desmos or similar)
@@ -224,6 +231,19 @@ fn max_iter_reached_detection() {
     assert_eq!(solution, Err(SolverError::MaxIterReached));
 
     let solution = GaussNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    // Single-variable solvers
+    let f = |v: f64| v.powi(2) + 1.;
+    let j = |v: f64| 2. * v;
+
+    let solution = Newton::new(f, j).with_tol(1e-3).solve(3.);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    let solution = FDNewton::new(f).with_tol(1e-3).solve(3.);
+    assert_eq!(solution, Err(SolverError::MaxIterReached));
+
+    let solution = Secant::new(f).with_tol(1e-3).solve(3., 4.);
     assert_eq!(solution, Err(SolverError::MaxIterReached));
 }
 
