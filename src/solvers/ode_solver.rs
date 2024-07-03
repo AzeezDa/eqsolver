@@ -1,11 +1,11 @@
 use super::ODESolverMethod;
 use crate::solvers::{SolverError, SolverResult};
-use nalgebra::{ClosedAdd, ClosedMul};
+use nalgebra::{ClosedAddAssign, ClosedMulAssign};
 use num_traits::Float;
 #[allow(dead_code)]
 
 /// # General ODE solver for Initial Value Problems
-/// 
+///
 /// Solves first order ODE systems of equations in form of Initial Value Problem.
 /// Given a system of equations `F(x)` that is a closure of the form `|x, y|` where `x` is a `Float` and `y` is either a `Float` or nalgebra `Vector` representing the system of first order ODEs.
 ///
@@ -29,7 +29,7 @@ use num_traits::Float;
 /// ```
 ///
 /// ### System of ODEs
-/// 
+///
 /// ```
 /// use eqsolver::ODESolver;
 /// use nalgebra::Vector2;
@@ -46,12 +46,7 @@ use num_traits::Float;
 ///
 /// assert!((solution[0] - SOLUTION) <= 1e-3);
 /// ```
-pub struct ODESolver<T, V, F>
-where
-    T: Float,
-    V: ClosedAdd + ClosedMul<T> + Copy,
-    F: Fn(T, V) -> V,
-{
+pub struct ODESolver<T, V, F> {
     f: F,
     x0: T,
     y0: V,
@@ -63,11 +58,11 @@ where
 impl<T, V, F> ODESolver<T, V, F>
 where
     T: Float,
-    V: ClosedAdd + ClosedMul<T> + Copy,
+    V: Copy + ClosedAddAssign + ClosedMulAssign<T>,
     F: Fn(T, V) -> V,
 {
     /// Set up the solver with the initial value problem
-    /// 
+    ///
     /// Instantiate the ODESolver given the derivative function `F(x, Y)` that represents the equation or the system, the initial values and the step size.
     ///
     /// ## Examples
@@ -115,7 +110,7 @@ where
     /// ```
     ///
     /// ## System of ODEs
-    /// 
+    ///
     /// ```
     /// use eqsolver::ODESolver;
     /// use nalgebra::Vector2;
@@ -223,7 +218,7 @@ where
     /// let solution = solver
     ///                 .with_method(ODESolverMethod::EulerForward)
     ///                 .solve(x_end);
-    /// 
+    ///
     /// # assert!((solution.unwrap() - (-1_f64).exp()) <= 0.1);
     /// ```
     pub fn with_method(&mut self, method: ODESolverMethod) -> &mut Self {

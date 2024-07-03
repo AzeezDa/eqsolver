@@ -1,9 +1,10 @@
 use std::marker::PhantomData;
 
+use crate::SolverResult;
+
 use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-#[allow(dead_code)]
 use nalgebra::ComplexField;
-use nalgebra::{allocator::Allocator, Const, DefaultAllocator, Dim};
+use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, U1};
 use num_traits::{Float, Signed};
 
 /// # Gauss-Newton with Finite Differences
@@ -13,21 +14,7 @@ use num_traits::{Float, Signed};
 /// **Default Tolerance:** `1e-6`
 ///
 /// **Default Max Iterations:** `50`
-pub struct GaussNewtonFD<T, R, C, F>
-where
-    T: Float + ComplexField<RealField = T> + Signed,
-    R: Dim,
-    C: Dim,
-    F: Fn(VectorType<T, C>) -> VectorType<T, R>,
-    DefaultAllocator: Allocator<T, C, R>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, Const<1>, R>
-        + Allocator<T, C, Const<1>>
-        + Allocator<T, Const<1>, C>
-        + Allocator<T, R, C>
-        + Allocator<T, C, C>
-{
+pub struct GaussNewtonFD<T, R, C, F> {
     f: F,
     h: T,
     tolerance: T,
@@ -42,14 +29,14 @@ where
     R: Dim,
     C: Dim,
     F: Fn(VectorType<T, C>) -> VectorType<T, R>,
-    DefaultAllocator: Allocator<T, C, R>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, Const<1>, R>
-        + Allocator<T, C, Const<1>>
-        + Allocator<T, Const<1>, C>
-        + Allocator<T, R, C>
-        + Allocator<T, C, C>
+    DefaultAllocator: Allocator<C, R>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<U1, R>
+        + Allocator<C, U1>
+        + Allocator<U1, C>
+        + Allocator<R, C>
+        + Allocator<C, C>,
 {
     /// Create a new instance of the algorithm
     ///
@@ -92,7 +79,7 @@ where
     /// Run the algorithm
     ///
     /// Finds `x` such that `||F(x)||` is minimized where `F` is the overdetermined system of equations.
-    pub fn solve(&self, mut x0: VectorType<T, C>) -> Result<VectorType<T, C>, SolverError> {
+    pub fn solve(&self, mut x0: VectorType<T, C>) -> SolverResult<VectorType<T, C>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
         let fx = (self.f)(x0.clone());

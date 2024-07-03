@@ -1,10 +1,11 @@
 use std::marker::PhantomData;
 
-#[allow(dead_code)]
+use crate::SolverResult;
+
+use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::ComplexField;
-use nalgebra::{Dim, DefaultAllocator, allocator::Allocator};
-use num_traits::{Signed, Float};
-use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType, MatrixType};
+use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
+use num_traits::{Float, Signed};
 
 /// # Gauss-Newton
 ///
@@ -13,21 +14,13 @@ use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType, MatrixType};
 /// **Default Tolerance:** 1e-6
 ///
 /// **Default Max Iterations:** 50
-pub struct GaussNewton<T, R, C, F, J>
-where
-    T: Float + ComplexField<RealField = T> + Signed,
-    R: Dim,
-    C: Dim,
-    F: Fn(VectorType<T, C>) -> VectorType<T, R>,
-    J: Fn(VectorType<T, C>) -> MatrixType<T, R, C>,
-    DefaultAllocator: Allocator<T, C> + Allocator<T, R> + Allocator<T, R, C> + Allocator<T, C, R> + Allocator<T, C, C>,
-{
+pub struct GaussNewton<T, R, C, F, J> {
     f: F,
     j: J,
     tolerance: T,
     iter_max: usize,
     r_phantom: PhantomData<R>,
-    c_phantom: PhantomData<C>
+    c_phantom: PhantomData<C>,
 }
 
 impl<T, R, C, F, J> GaussNewton<T, R, C, F, J>
@@ -37,7 +30,8 @@ where
     C: Dim,
     F: Fn(VectorType<T, C>) -> VectorType<T, R>,
     J: Fn(VectorType<T, C>) -> MatrixType<T, R, C>,
-    DefaultAllocator: Allocator<T, C> + Allocator<T, R> + Allocator<T, R, C> + Allocator<T, C, R> + Allocator<T, C, C>,
+    DefaultAllocator:
+        Allocator<C> + Allocator<R> + Allocator<R, C> + Allocator<C, R> + Allocator<C, C>,
 {
     /// Create a new instance of the algorithm
     ///
@@ -49,7 +43,7 @@ where
             tolerance: T::from(DEFAULT_TOL).unwrap(),
             iter_max: DEFAULT_ITERMAX,
             r_phantom: PhantomData,
-            c_phantom: PhantomData
+            c_phantom: PhantomData,
         }
     }
 
@@ -72,16 +66,15 @@ where
     /// Run the algorithm
     ///
     /// Finds `x` such that `||F(x)||` is minimized where `F` is the overdetermined system of equations.
-    pub fn solve(&self, mut x0: VectorType<T, C>) -> Result<VectorType<T, C>, SolverError> {
+    pub fn solve(&self, mut x0: VectorType<T, C>) -> SolverResult<VectorType<T, C>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
-
 
         // Gauss-Newton Iteration
         while dv.abs().max() > self.tolerance && iter < self.iter_max {
             let j = (self.j)(x0.clone());
             let jt = j.transpose();
-            if let Some(jtj_inv) = (jt.clone()*j).try_inverse() {
+            if let Some(jtj_inv) = (jt.clone() * j).try_inverse() {
                 dv = jtj_inv * jt * (self.f)(x0.clone());
                 x0 = x0 - dv.clone();
                 iter += 1;

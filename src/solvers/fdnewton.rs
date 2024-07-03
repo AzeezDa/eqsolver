@@ -1,51 +1,47 @@
 use num_traits::Float;
 use std::ops::Fn;
 
-use super::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use super::finite_differences::{backward, central, forward, FiniteDifferenceType};
+use super::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 
 /// # Newton-Raphson with Finite Differences
-/// 
+///
 /// FDNewton solves an equation `f(x) = 0` given the function `f` as a closure that takes a `Float` and outputs a `Float`.
 /// This function uses the Newton-Raphson's method ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method)) but approximates the derivative in the iteration using finite differences.
-/// 
+///
 /// **Default Tolerance:** `1e-6`
-/// 
+///
 /// **Default Max Iterations:** `50`
-/// 
+///
 /// **Default Finite Difference:** `Central`
-/// 
+///
 /// **Default Step length for Finite Difference:** `√(Machine Epsilon)`
-/// 
+///
 /// ## Examples
-/// 
+///
 /// ### A solution exists
-/// 
+///
 /// ```
 /// // Want to solve x in cos(x) = sin(x). This is equivalent to solving x in cos(x) - sin(x) = 0.
 /// use eqsolver::single_variable::FDNewton;
 /// let f = |x: f64| x.cos() - x.sin();
-/// 
+///
 /// // Solve with Newton's Method with finite differences. Error is less than 1E-6. Starting guess is around 0.8.
 /// let solution = FDNewton::new(f).with_tol(1e-6).solve(0.8).unwrap();
 /// assert!((solution - std::f64::consts::FRAC_PI_4).abs() <= 1e-6); // Exactly x = pi/4
 /// ```
-/// 
+///
 /// ### A solution does not exist
-/// 
+///
 /// ```
 /// use eqsolver::{single_variable::FDNewton, SolverError};
 /// let f = |x: f64| x*x + 1.;
-/// 
+///
 /// // Solve with Newton's Method with finite differences. Error is less than 1E-6. Starting guess is around 0.8.
 /// let solution = FDNewton::new(f).solve(1.);
 /// assert_eq!(solution.err().unwrap(), SolverError::NotANumber); // No solutions, will diverge!
 /// ```
-pub struct FDNewton<T, F>
-where
-    T: Float,
-    F: Fn(T) -> T + Copy,
-{
+pub struct FDNewton<T, F> {
     f: F,
     finite_diff: fn(F, T, T) -> T,
     fd_step_length: T,
@@ -72,9 +68,9 @@ where
     }
 
     /// Updates the solver's tolerance (Magnitude of Error).
-    /// 
+    ///
     /// **Default Tolerance:** `1e-6`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::single_variable::FDNewton;
@@ -91,13 +87,13 @@ where
     }
 
     /// Updates the solver's amount of iterations done before terminating the iteration
-    /// 
+    ///
     /// **Default Max Iterations:** `50`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::{single_variable::FDNewton, SolverError};
-    /// 
+    ///
     /// let f = |x: f64| x.powf(-x); // Solve x^-x = 0
     /// let solution = FDNewton::new(f)
     ///     .with_itermax(20)
@@ -110,9 +106,9 @@ where
     }
 
     /// Updates the step length used in the finite difference
-    /// 
+    ///
     /// **Default Step length for Finite Difference:** `√(Machine Epsilon)`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::single_variable::FDNewton;
@@ -129,11 +125,11 @@ where
     }
 
     /// Updates the type of finite difference used in the solver for derivative approximation.
-    /// 
+    ///
     /// There are 3 types available: `Forward`, `Backward` and `Central`.
-    /// 
+    ///
     /// **Default Finite Difference:** `Central`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::{DEFAULT_TOL, single_variable::FDNewton};
@@ -155,7 +151,7 @@ where
     }
 
     /// Solves `x` in `f(x) = 0` where `f` is the stored function. The given parameter `x0` is the starting guess.
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::{DEFAULT_TOL, single_variable::FDNewton};
@@ -179,9 +175,9 @@ where
         if iter >= self.iter_max {
             return Err(SolverError::MaxIterReached);
         }
-        
+
         if x0.is_nan() {
-            return Err(SolverError::NotANumber) 
+            return Err(SolverError::NotANumber);
         }
 
         Ok(x0)
