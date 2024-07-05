@@ -71,7 +71,7 @@ where
         let mut iter = 1;
 
         // Gauss-Newton Iteration
-        while dv.abs().max() > self.tolerance && iter < self.iter_max {
+        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
             let j = (self.j)(x0.clone());
             let jt = j.transpose();
             if let Some(jtj_inv) = (jt.clone() * j).try_inverse() {

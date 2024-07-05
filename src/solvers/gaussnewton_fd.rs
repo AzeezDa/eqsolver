@@ -85,7 +85,7 @@ where
         let fx = (self.f)(x0.clone());
         let zero = (fx * x0.clone().transpose()).scale(T::zero());
 
-        while dv.abs().max() > self.tolerance && iter < self.iter_max {
+        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
             let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 

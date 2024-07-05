@@ -169,7 +169,7 @@ where
         let mut iter = 1;
 
         // Newton-Raphson Iteration
-        while dv.abs().max() > self.tolerance && iter < self.iter_max {
+        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
             if let Some(j_inv) = (self.j)(x0.clone()).try_inverse() {
                 dv = j_inv * (self.f)(x0.clone());
                 x0 = x0 - dv.clone();
