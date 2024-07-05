@@ -6,6 +6,8 @@ mod secant;
 
 mod gaussnewton;
 mod gaussnewton_fd;
+mod levenberg_marquardt;
+mod levenberg_marquardt_fd;
 mod multinewton;
 mod multinewton_fd;
 mod ode_solver;
@@ -21,8 +23,9 @@ pub mod single_variable {
 /// Root-finders for equations of multiple variables
 pub mod multivariable {
     pub use super::{
-        gaussnewton::GaussNewton, gaussnewton_fd::GaussNewtonFD, multinewton::MultiVarNewton,
-        multinewton_fd::MultiVarNewtonFD,
+        gaussnewton::GaussNewton, gaussnewton_fd::GaussNewtonFD,
+        levenberg_marquardt::LevenbergMarquardt, multinewton::MultiVarNewton,
+        multinewton_fd::MultiVarNewtonFD, levenberg_marquardt_fd::LevenbergMarquardtFD
     };
 }
 
