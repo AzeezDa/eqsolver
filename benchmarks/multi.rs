@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, Criterion};
 use eqsolver::multivariable::*;
-use nalgebra::{vector, DMatrix, DVector, SVector};
+use nalgebra::{vector, DMatrix, DVector, Matrix, SMatrix, SVector};
 use std::f64::consts::PI;
 
 macro_rules! bench_lm {
@@ -21,6 +21,9 @@ macro_rules! bench_lm {
             })
         });
     };
+    ($c:ident, $f:expr, $j:expr, $guess:expr) => {
+        bench_lm!($c, "", $f, $j, $guess);
+    };
 }
 
 macro_rules! bench_gn {
@@ -32,6 +35,9 @@ macro_rules! bench_gn {
         $c.bench_function(format!("GNFD {}", $name).as_str(), |bh| {
             bh.iter(|| GaussNewtonFD::new($f).solve(black_box($guess)).unwrap())
         });
+    };
+    ($c:ident, $f:expr, $j:expr, $guess:expr) => {
+        bench_gn!($c, "", $f, $j, $guess);
     };
 }
 
@@ -49,14 +55,18 @@ macro_rules! bench_newton {
             bh.iter(|| MultiVarNewtonFD::new($f).solve(black_box($guess)).unwrap())
         });
     };
+    ($c:ident, $f:expr, $j:expr, $guess:expr) => {
+        bench_newton!($c, "", $f, $j, $guess);
+    };
 }
 
 fn bench_multi_variable_heavy(c: &mut Criterion) {
     const SIZE: usize = 100;
+    let mut group = c.benchmark_group(format!("{SIZE}D Heavy"));
+
     let f = |v: DVector<f64>| {
         let mut out = DVector::zeros(SIZE);
-
-        for (i, o) in out.iter_mut().enumerate() {
+        for (i, o) in Matrix::iter_mut(&mut out).enumerate() {
             for x in v.iter().skip(i) {
                 *o += x.powi(2)
             }
@@ -66,7 +76,7 @@ fn bench_multi_variable_heavy(c: &mut Criterion) {
     };
 
     let j = |v: DVector<f64>| {
-        let mut out = DMatrix::zeros(SIZE, SIZE);
+        let mut out = DMatrix::<f64>::zeros(SIZE, SIZE);
 
         for (i, mut r) in out.row_iter_mut().enumerate() {
             for (j, c) in r.iter_mut().enumerate().skip(i) {
@@ -79,14 +89,17 @@ fn bench_multi_variable_heavy(c: &mut Criterion) {
 
     let init = DVector::<f64>::repeat(SIZE, 0.3);
 
-    bench_lm!(c, "heavy", f, j, init.clone());
-    bench_gn!(c, "heavy", f, j, init.clone());
-    bench_newton!(c, "heavy", f, j, init.clone());
+    bench_lm!(group, f, j, init.clone());
+    bench_gn!(group, f, j, init.clone());
+    bench_newton!(group, f, j, init.clone());
+    group.finish()
 }
 
 fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
-    let f = |v: SVector<f64, 30>| {
-        let mut total = 10. * 30.;
+    const SIZE: usize = 30;
+    let mut group = c.benchmark_group(format!("{SIZE}D Rastrigin"));
+    let f = |v: SVector<f64, SIZE>| {
+        let mut total = 10. * SIZE as f64;
 
         for &w in v.iter() {
             total += w * w - 10. * (2. * PI * w).cos();
@@ -95,7 +108,7 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
         vector![total]
     };
 
-    let j = |mut v: SVector<f64, 30>| {
+    let j = |mut v: SVector<f64, SIZE>| {
         for w in v.iter_mut() {
             let w_ = *w;
             *w = 2. * w_ + 20. * PI * (2. * PI * w_).sin();
@@ -104,9 +117,9 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
         v.transpose()
     };
 
-    let init = SVector::<f64, 30>::repeat(0.4);
+    let init = SVector::<f64, SIZE>::repeat(0.4);
 
-    bench_lm!(c, "rastrigin", f, j, init);
+    bench_lm!(group, f, j, init);
 }
 
 criterion_group!(
