@@ -5,7 +5,7 @@ use crate::{SolverResult, DEFAULT_TOL};
 use super::levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE};
 use super::{SolverError, VectorType, DEFAULT_ITERMAX};
 use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
-use nalgebra::{ComplexField, U1};
+use nalgebra::{ComplexField, UniformNorm, U1};
 use num_traits::{Float, Signed};
 
 /// # Levenberg-Marquardt
@@ -112,35 +112,35 @@ where
     /// Finds `x` such that `||F(x)||` is minimized where `F` is the overdetermined system of equations.
     pub fn solve(&self, mut x0: VectorType<T, C>) -> SolverResult<VectorType<T, C>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
-        let mut identity = x0.clone() * x0.clone().transpose();
+        let mut identity = &x0 * x0.transpose();
         identity.fill_with_identity();
         let mut iter = 1;
         let mut damping = self.mu_0;
         let mut fx = (self.f)(x0.clone());
-        let zero = (fx.clone() * x0.clone().transpose()).scale(T::zero());
+        let zero = (&fx * x0.transpose()).scale(T::zero());
 
         // Levenberg-Marquardt Iteration
-        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let mut j = zero.clone(); // Jacobian, will be approximated below
 
             // Approximate the Jacobian using forward finite difference
             for i in 0..j.ncols() {
                 let mut x_h = x0.clone();
                 x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
-                let df = ((self.f)(x_h) - fx.clone()) / self.h; // Derivative of F with respect to x_i
+                let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..j.nrows() {
                     j[(k, i)] = df[k];
                 }
             }
 
-            let jt = j.clone().transpose();
-            let d = jt.clone() * j + identity.clone() * damping;
-            let Some(j_inv) = d.clone().try_inverse() else {
+            let jt = j.transpose();
+            let d = &jt * j + &identity * damping;
+            let Some(j_inv) = d.try_inverse() else {
                 return Err(SolverError::BadJacobian);
             };
 
             dv = j_inv * -jt * fx.clone();
-            x0 += dv.clone();
+            x0 += &dv;
             let fx_next = (self.f)(x0.clone());
 
             if fx_next.norm() < fx.norm() {

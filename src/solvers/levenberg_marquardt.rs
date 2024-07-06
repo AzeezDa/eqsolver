@@ -4,7 +4,7 @@ use crate::{SolverResult, DEFAULT_TOL};
 
 use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX};
 use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
-use nalgebra::{ComplexField, U1};
+use nalgebra::{ComplexField, UniformNorm, U1};
 use num_traits::{Float, Signed};
 
 pub(crate) const DEFAULT_DAMPING_INITIAL_VALUE: f64 = 0.01;
@@ -105,23 +105,23 @@ where
     /// Finds `x` such that `||F(x)||` is minimized where `F` is the overdetermined system of equations.
     pub fn solve(&self, mut x0: VectorType<T, C>) -> SolverResult<VectorType<T, C>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
-        let mut identity = x0.clone() * x0.clone().transpose();
+        let mut identity = &x0 * x0.transpose();
         identity.fill_with_identity();
         let mut iter = 1;
         let mut damping = self.mu_0;
         let mut fx = (self.f)(x0.clone());
 
         // Levenberg-Marquardt Iteration
-        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let j = (self.j)(x0.clone());
-            let jt = j.clone().transpose();
-            let d = jt.clone() * j + identity.clone() * damping;
-            let Some(j_inv) = d.clone().try_inverse() else {
+            let jt = j.transpose();
+            let d = &jt * j + &identity * damping;
+            let Some(j_inv) = d.try_inverse() else {
                 return Err(SolverError::BadJacobian);
             };
 
             dv = j_inv * -jt * fx.clone();
-            x0 += dv.clone();
+            x0 += &dv;
             let fx_next = (self.f)(x0.clone());
 
             if fx_next.norm() < fx.norm() {

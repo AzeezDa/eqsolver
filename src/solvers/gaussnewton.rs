@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 use crate::SolverResult;
 
 use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-use nalgebra::ComplexField;
 use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
+use nalgebra::{ComplexField, UniformNorm};
 use num_traits::{Float, Signed};
 
 /// # Gauss-Newton
@@ -71,12 +71,12 @@ where
         let mut iter = 1;
 
         // Gauss-Newton Iteration
-        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let j = (self.j)(x0.clone());
             let jt = j.transpose();
-            if let Some(jtj_inv) = (jt.clone() * j).try_inverse() {
+            if let Some(jtj_inv) = (&jt * j).try_inverse() {
                 dv = jtj_inv * jt * (self.f)(x0.clone());
-                x0 = x0 - dv.clone();
+                x0 -= &dv;
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);

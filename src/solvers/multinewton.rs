@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::{Float, Signed};
 
 use crate::SolverResult;
@@ -169,10 +169,10 @@ where
         let mut iter = 1;
 
         // Newton-Raphson Iteration
-        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             if let Some(j_inv) = (self.j)(x0.clone()).try_inverse() {
                 dv = j_inv * (self.f)(x0.clone());
-                x0 = x0 - dv.clone();
+                x0 -= &dv;
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);

@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::SolverResult;
 
 use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-use nalgebra::ComplexField;
+use nalgebra::{ComplexField, UniformNorm};
 use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, U1};
 use num_traits::{Float, Signed};
 
@@ -170,9 +170,9 @@ where
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
         let dim = x0.nrows();
-        let zero = (x0.clone() * x0.clone().transpose()).scale(T::zero());
+        let zero = (&x0 * x0.transpose()).scale(T::zero());
 
-        while dv.abs().max() > self.tolerance && iter <= self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 
@@ -180,7 +180,7 @@ where
             for i in 0..dim {
                 let mut x_h = x0.clone();
                 x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
-                let df = ((self.f)(x_h) - fx.clone()) / self.h; // Derivative of F with respect to x_i
+                let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..dim {
                     j[(k, i)] = df[k];
                 }
@@ -189,7 +189,7 @@ where
             // Newton-Raphson iteration
             if let Some(j_inv) = j.try_inverse() {
                 dv = j_inv * fx;
-                x0 = x0 - dv.clone();
+                x0 -= &dv;
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);
