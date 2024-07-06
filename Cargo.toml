@@ -19,3 +19,11 @@ path = "src/lib.rs"
 [dependencies]
 nalgebra = "0.33.0"
 num-traits = "0.2.19"
+
+[dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "eqsolver_benchmark"
+harness = false
+path = "benchmarks/lib.rs"
