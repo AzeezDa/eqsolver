@@ -11,6 +11,7 @@ mod levenberg_marquardt_fd;
 mod multinewton;
 mod multinewton_fd;
 mod ode_solver;
+mod particle_swarm;
 
 /// Methods of derivative approximation
 pub mod finite_differences;
@@ -24,11 +25,17 @@ pub mod single_variable {
 pub mod multivariable {
     pub use super::{
         gaussnewton::GaussNewton, gaussnewton_fd::GaussNewtonFD,
-        levenberg_marquardt::LevenbergMarquardt, multinewton::MultiVarNewton,
-        multinewton_fd::MultiVarNewtonFD, levenberg_marquardt_fd::LevenbergMarquardtFD
+        levenberg_marquardt::LevenbergMarquardt, levenberg_marquardt_fd::LevenbergMarquardtFD,
+        multinewton::MultiVarNewton, multinewton_fd::MultiVarNewtonFD,
     };
 }
 
+/// Finds global optimums of multivariate objective functions
+pub mod global_optimisers {
+    pub use super::particle_swarm::ParticleSwarm;
+}
+
+/// Ordinary Differential Equation solvers
 pub use ode_solver::ODESolver;
 
 /// Default tolerance (error of magnitude)
@@ -71,6 +78,7 @@ pub enum ODESolverMethod {
     RungeKutta4,
 }
 
+/// Alias for `Result<T, SolverError>`
 pub type SolverResult<T> = Result<T, SolverError>;
 
 type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<D>>::Buffer<T>>;

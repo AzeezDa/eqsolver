@@ -1,6 +1,7 @@
 use criterion::{black_box, criterion_group, Criterion};
 use eqsolver::multivariable::*;
-use nalgebra::{vector, DMatrix, DVector, Matrix, SMatrix, SVector};
+use eqsolver::global_optimisers::*;
+use nalgebra::{vector, DMatrix, DVector, Matrix, SVector};
 use std::f64::consts::PI;
 
 macro_rules! bench_lm {
@@ -60,6 +61,21 @@ macro_rules! bench_newton {
     };
 }
 
+macro_rules! bench_pso {
+    ($c:ident, $name:literal, $f:expr, $guess:expr, $lbounds:expr, $ubounds:expr) => {
+        $c.bench_function(format!("PSO {}", $name).as_str(), |bh| {
+            bh.iter(|| {
+                ParticleSwarm::new($f, $lbounds, $ubounds)
+                    .solve(black_box($guess))
+                    .unwrap()
+            })
+        });
+    };
+    ($c:ident, $f:expr, $guess:expr, $lbounds:expr, $ubounds:expr) => {
+        bench_pso!($c, "", $f, $guess, $lbounds, $ubounds);
+    };
+}
+
 fn bench_multi_variable_heavy(c: &mut Criterion) {
     const SIZE: usize = 100;
     let mut group = c.benchmark_group(format!("{SIZE}D Heavy"));
@@ -98,6 +114,7 @@ fn bench_multi_variable_heavy(c: &mut Criterion) {
 fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
     const SIZE: usize = 30;
     let mut group = c.benchmark_group(format!("{SIZE}D Rastrigin"));
+
     let f = |v: SVector<f64, SIZE>| {
         let mut total = 10. * SIZE as f64;
 
@@ -105,7 +122,11 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
             total += w * w - 10. * (2. * PI * w).cos();
         }
 
-        vector![total]
+        total
+    };
+
+    let f_vec = |v: SVector<f64, SIZE>| {
+        vector![f(v)]
     };
 
     let j = |mut v: SVector<f64, SIZE>| {
@@ -118,8 +139,10 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
     };
 
     let init = SVector::<f64, SIZE>::repeat(0.4);
+    let bounds = SVector::repeat(1.);
 
-    bench_lm!(group, f, j, init);
+    bench_lm!(group, f_vec, j, init);
+    bench_pso!(group, f, init, -bounds, bounds);
 }
 
 criterion_group!(

@@ -1,5 +1,5 @@
 use crate::finite_differences::{backward, central, forward};
-use crate::{multivariable::*, single_variable::*, ODESolver, SolverError};
+use crate::{multivariable::*, single_variable::*, global_optimisers::*, ODESolver, SolverError};
 use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3};
 
 #[test]
@@ -336,4 +336,37 @@ fn ode_system_solver() {
     let solution = solver.solve(x_end).unwrap();
 
     assert!((solution[0] - SOLUTION).abs() < 1e-2);
+}
+
+/// Not really a test since Particle Swarm Optimisation is random. This test, therefore, 
+/// acts solely as documentation. The only thing assured is that the output's cost is not 
+/// more than the initial cost.
+#[test]
+fn particle_swarm() {
+    const SIZE: usize = 16;
+    let rastrigin = |v: nalgebra::SVector<f64, SIZE>| {
+        let mut total = 10. * SIZE as f64;
+
+        for &w in v.iter() {
+            total += w * w - 10. * (2. * std::f64::consts::PI * w).cos();
+        }
+
+        total
+    };
+
+    let guess = nalgebra::SVector::repeat(80.);
+    let cost = rastrigin(guess);
+    let bounds = nalgebra::SVector::repeat(100.);
+
+    let optimised_position = ParticleSwarm::new(rastrigin, -bounds, bounds)
+        .with_tolerance(1e-3)
+        .with_particle_count(1500)
+        .solve(guess)
+        .unwrap();
+    let optimised_cost = rastrigin(optimised_position);
+
+    // Run `cargo test particle_swarm -- --nocapture` to see this output and the improvement
+    println!("{cost} -> {optimised_cost}\n{optimised_position}");
+
+    assert!(optimised_cost <= cost)
 }
