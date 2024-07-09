@@ -1,8 +1,9 @@
+use crate::{
+    finite_differences::{backward, central, forward, FiniteDifferenceType},
+    {SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL},
+};
 use num_traits::Float;
 use std::ops::Fn;
-
-use super::finite_differences::{backward, central, forward, FiniteDifferenceType};
-use super::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 
 /// # Newton-Raphson with Finite Differences
 ///

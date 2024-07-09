@@ -1,11 +1,8 @@
-use std::marker::PhantomData;
-
+use super::{MatrixType, VectorType};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::{Float, Signed};
-
-use crate::SolverResult;
-
-use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
+use std::marker::PhantomData;
 
 /// # Multivariate Newton-Raphson
 ///

@@ -1,14 +1,11 @@
+use super::{MatrixType, VectorType};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
+use num_traits::{Float, Signed};
 use std::marker::PhantomData;
 
-use crate::{SolverResult, DEFAULT_TOL};
-
-use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX};
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
-use nalgebra::{ComplexField, UniformNorm, U1};
-use num_traits::{Float, Signed};
-
-pub(crate) const DEFAULT_DAMPING_INITIAL_VALUE: f64 = 0.01;
-pub(crate) const DEFAULT_DAMPING_DECAY_FACTOR: f64 = 10.;
+pub(super) const DEFAULT_DAMPING_INITIAL_VALUE: f64 = 0.01;
+pub(super) const DEFAULT_DAMPING_DECAY_FACTOR: f64 = 10.;
 
 /// # Levenberg-Marquardt
 ///

@@ -1,6 +1,4 @@
-use crate::SolverResult;
-
-use super::{SolverError, DEFAULT_ITERMAX, DEFAULT_TOL};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use num_traits::Float;
 use std::ops::Fn;
 

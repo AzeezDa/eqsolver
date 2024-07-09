@@ -1,11 +1,8 @@
-use std::marker::PhantomData;
-
-use crate::SolverResult;
-
-use super::{MatrixType, SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
-use nalgebra::{ComplexField, UniformNorm};
+use super::{MatrixType, VectorType};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm};
 use num_traits::{Float, Signed};
+use std::marker::PhantomData;
 
 /// # Gauss-Newton
 ///

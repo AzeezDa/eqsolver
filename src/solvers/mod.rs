@@ -30,13 +30,13 @@ pub mod multivariable {
     };
 }
 
-/// Finds global optimums of multivariate objective functions
+/// Finds global optimums of objective functions
 pub mod global_optimisers {
     pub use super::particle_swarm::ParticleSwarm;
 }
 
 /// Ordinary Differential Equation solvers
-pub use ode_solver::ODESolver;
+pub use ode_solver::*;
 
 /// Default tolerance (error of magnitude)
 pub const DEFAULT_TOL: f64 = 1e-6;
@@ -58,24 +58,6 @@ pub enum SolverError {
 
     /// A Jacobian Matrix in the iteration was singular or ill-defined
     BadJacobian,
-}
-
-/// Types of methods for ODE solving
-pub enum ODESolverMethod {
-    /// The Explicit Euler method, ([Wikipedia](https://en.wikipedia.org/wiki/Euler_method))
-    ///
-    /// Order of accuracy: 1
-    EulerForward,
-
-    /// Heun's Method (also known as Runge-Kutta 2), ([Wikipedia](https://en.wikipedia.org/wiki/Heun%27s_method))
-    ///
-    /// Order of accuracy: 2
-    Heun,
-
-    /// Runge-Kutta 4, ([Wikipedia](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods))
-    ///
-    /// Order of accuracy: 4
-    RungeKutta4,
 }
 
 /// Alias for `Result<T, SolverError>`

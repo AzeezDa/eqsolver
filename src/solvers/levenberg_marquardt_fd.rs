@@ -1,12 +1,11 @@
-use std::marker::PhantomData;
-
-use crate::{SolverResult, DEFAULT_TOL};
-
-use super::levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE};
-use super::{SolverError, VectorType, DEFAULT_ITERMAX};
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim};
-use nalgebra::{ComplexField, UniformNorm, U1};
+use super::{
+    levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE},
+    VectorType,
+};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
+use std::marker::PhantomData;
 
 /// # Levenberg-Marquardt
 ///

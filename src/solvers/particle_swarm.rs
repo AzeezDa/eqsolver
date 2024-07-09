@@ -1,13 +1,10 @@
-use std::{marker::PhantomData, slice::Iter};
-
+use super::VectorType;
+use crate::{SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar};
 use num_traits::Float;
 use rand::thread_rng;
 use rand_distr::{uniform::SampleUniform, Distribution, Uniform};
-
-use crate::{SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
-
-use super::VectorType;
+use std::{marker::PhantomData, slice::Iter};
 
 const DEFAULT_INERTIA_WEIGHT: f64 = 0.5;
 const DEFAULT_COGNIIVE_COEFFICIENT: f64 = 1.0;
@@ -149,7 +146,7 @@ where
 
     /// Set the inertia weight of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;

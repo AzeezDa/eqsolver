@@ -1,11 +1,8 @@
-use std::marker::PhantomData;
-
-use crate::SolverResult;
-
-use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-use nalgebra::{ComplexField, UniformNorm};
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, U1};
+use super::VectorType;
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
+use std::marker::PhantomData;
 
 /// # Gauss-Newton with Finite Differences
 ///

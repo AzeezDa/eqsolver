@@ -1,6 +1,5 @@
 use criterion::{black_box, criterion_group, Criterion};
-use eqsolver::multivariable::*;
-use eqsolver::global_optimisers::*;
+use eqsolver::{global_optimisers::*, multivariable::*};
 use nalgebra::{vector, DMatrix, DVector, Matrix, SVector};
 use std::f64::consts::PI;
 
@@ -125,9 +124,7 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
         total
     };
 
-    let f_vec = |v: SVector<f64, SIZE>| {
-        vector![f(v)]
-    };
+    let f_vec = |v: SVector<f64, SIZE>| vector![f(v)];
 
     let j = |mut v: SVector<f64, SIZE>| {
         for w in v.iter_mut() {
