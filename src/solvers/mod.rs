@@ -1,40 +1,18 @@
 use nalgebra::{allocator::Allocator, DefaultAllocator, Matrix, Vector};
 
-mod fdnewton;
-mod newton;
-mod secant;
-
-mod gaussnewton;
-mod gaussnewton_fd;
-mod levenberg_marquardt;
-mod levenberg_marquardt_fd;
-mod multinewton;
-mod multinewton_fd;
-mod ode_solver;
-mod particle_swarm;
-
 /// Methods of derivative approximation
 pub mod finite_differences;
 
 /// Root-finders for equations of a single variable
-pub mod single_variable {
-    pub use super::{fdnewton::FDNewton, newton::Newton, secant::Secant};
-}
+pub mod single_variable;
 
 /// Root-finders for equations of multiple variables
-pub mod multivariable {
-    pub use super::{
-        gaussnewton::GaussNewton, gaussnewton_fd::GaussNewtonFD,
-        levenberg_marquardt::LevenbergMarquardt, levenberg_marquardt_fd::LevenbergMarquardtFD,
-        multinewton::MultiVarNewton, multinewton_fd::MultiVarNewtonFD,
-    };
-}
+pub mod multivariable;
 
 /// Finds global optimums of objective functions
-pub mod global_optimisers {
-    pub use super::particle_swarm::ParticleSwarm;
-}
+pub mod global_optimisers;
 
+mod ode_solver;
 /// Ordinary Differential Equation solvers
 pub use ode_solver::*;
 
