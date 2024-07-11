@@ -75,6 +75,22 @@ macro_rules! bench_pso {
     };
 }
 
+macro_rules! bench_ce {
+    ($c:ident, $name:literal, $f:expr, $guess:expr, $std_dev:expr) => {
+        $c.bench_function(format!("CE {}", $name).as_str(), |bh| {
+            bh.iter(|| {
+                CrossEntropy::new($f)
+                    .with_std_dev($std_dev)
+                    .solve(black_box($guess))
+                    .unwrap()
+            })
+        });
+    };
+    ($c:ident, $f:expr, $guess:expr, $std_dev:expr) => {
+        bench_ce!($c, "", $f, $guess, $std_dev);
+    };
+}
+
 fn bench_multi_variable_heavy(c: &mut Criterion) {
     const SIZE: usize = 100;
     let mut group = c.benchmark_group(format!("{SIZE}D Heavy"));
@@ -140,6 +156,7 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
 
     bench_lm!(group, f_vec, j, init);
     bench_pso!(group, f, init, -bounds, bounds);
+    bench_ce!(group, f, init, bounds);
 }
 
 criterion_group!(

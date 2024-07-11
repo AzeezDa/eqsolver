@@ -6,6 +6,8 @@ use crate::{
     ODESolver, SolverError,
 };
 use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3};
+use rand::thread_rng;
+use rand_distr::Distribution;
 
 #[test]
 fn solve_secant() {
@@ -359,13 +361,54 @@ fn particle_swarm() {
         total
     };
 
-    let guess = nalgebra::SVector::repeat(80.);
+    let mut guess = nalgebra::SVector::zeros();
+    for i in 0..SIZE {
+        guess[i] = rand::distributions::Uniform::new(-50., 50.).sample(&mut thread_rng());
+    }
     let cost = rastrigin(guess);
     let bounds = nalgebra::SVector::repeat(100.);
 
     let optimised_position = ParticleSwarm::new(rastrigin, -bounds, bounds)
         .with_tolerance(1e-3)
         .with_particle_count(1500)
+        .solve(guess)
+        .unwrap();
+    let optimised_cost = rastrigin(optimised_position);
+
+    // Run `cargo test particle_swarm -- --nocapture` to see this output and the improvement
+    println!("{cost} -> {optimised_cost}\n{optimised_position}");
+
+    assert!(optimised_cost <= cost)
+}
+
+/// Not really a test since Cross Entropy uses randomness. This test, therefore,
+/// acts solely as documentation.
+#[test]
+fn cross_entropy() {
+    const SIZE: usize = 16;
+    let rastrigin = |v: nalgebra::SVector<f64, SIZE>| {
+        let mut total = 10. * SIZE as f64;
+
+        for &w in v.iter() {
+            total += w * w - 10. * (2. * std::f64::consts::PI * w).cos();
+        }
+
+        total
+    };
+
+    let mut guess = nalgebra::SVector::zeros();
+    let variance = nalgebra::SVector::repeat(100.);
+    for i in 0..SIZE {
+        guess[i] = rand::distributions::Uniform::new(-50., 50.).sample(&mut thread_rng());
+    }
+    let cost = rastrigin(guess);
+
+    let optimised_position = CrossEntropy::new(rastrigin)
+        .with_iter_max(120)
+        .with_sample_size(200)
+        .with_importance_selection_size(5)
+        .with_tolerance(1e-12)
+        .with_std_dev(variance)
         .solve(guess)
         .unwrap();
     let optimised_cost = rastrigin(optimised_position);
