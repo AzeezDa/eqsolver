@@ -3,6 +3,12 @@ use eqsolver::{global_optimisers::*, multivariable::*};
 use nalgebra::{vector, DMatrix, DVector, Matrix, SVector};
 use std::f64::consts::PI;
 
+criterion_group!(
+    benches,
+    bench_multi_variable_rastrigin,
+    bench_multi_variable_heavy
+);
+
 macro_rules! bench_lm {
     ($c:ident, $name:literal, $f:expr, $j:expr, $guess:expr) => {
         $c.bench_function(format!("LM {}", $name).as_str(), |bh| {
@@ -119,14 +125,28 @@ fn bench_multi_variable_heavy(c: &mut Criterion) {
     };
 
     let init = DVector::<f64>::repeat(SIZE, 0.3);
+    let bounds = DVector::<f64>::repeat(SIZE, 0.7);
 
     bench_lm!(group, f, j, init.clone());
     bench_gn!(group, f, j, init.clone());
     bench_newton!(group, f, j, init.clone());
+    bench_pso!(
+        group,
+        |v: DVector<f64>| { f(v).norm() },
+        init.clone(),
+        init.clone(),
+        bounds.clone()
+    );
+    bench_ce!(
+        group,
+        |v: DVector<f64>| { f(v).norm() },
+        init.clone(),
+        init.clone()
+    );
     group.finish()
 }
 
-fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
+fn bench_multi_variable_rastrigin(c: &mut Criterion) {
     const SIZE: usize = 30;
     let mut group = c.benchmark_group(format!("{SIZE}D Rastrigin"));
 
@@ -157,10 +177,5 @@ fn bench_multi_variable_lm_rastrigin(c: &mut Criterion) {
     bench_lm!(group, f_vec, j, init);
     bench_pso!(group, f, init, -bounds, bounds);
     bench_ce!(group, f, init, bounds);
+    group.finish();
 }
-
-criterion_group!(
-    benches,
-    bench_multi_variable_lm_rastrigin,
-    bench_multi_variable_heavy
-);

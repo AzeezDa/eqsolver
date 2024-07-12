@@ -12,7 +12,7 @@ const DEFAULT_IMPORTANCE_SELECTION_SIZE: usize = 10;
 ///
 /// This struct approximates `x` where `F(x) <= F(y)` for all `y` in the domain `S` in `Rn` of `F`, where `F: S -> R` is an *objective* or *cost* function
 /// to be minimised. This is done using the [Cross-Entropy Method](https://en.wikipedia.org/wiki/Cross-entropy_method) where the random values are
-/// sampled from a multivariate normal distribution. More specifically it is a vector of indepedant normally distributed random variables, which means
+/// sampled from a multivariate normal distribution. More specifically it is a vector of independent normally distributed random variables, which means
 /// the covariance matrix is diagonal, which is given to the optimiser as a vector of (sample) standard deviations.
 ///
 /// **Default Tolerance:** `1e-6`
@@ -100,11 +100,11 @@ where
     /// # };
     /// # let guess = SVector::repeat(80.);
     /// let optimised_position = CrossEntropy::new(f)
-    ///     .with_tolerance(1e-12)
+    ///     .with_tol(1e-12)
     ///     .solve(guess)
     ///     .unwrap();
     /// ```
-    pub fn with_tolerance(&mut self, tolerance: T) -> &mut Self {
+    pub fn with_tol(&mut self, tolerance: T) -> &mut Self {
         self.tolerance = tolerance;
         self
     }
@@ -191,7 +191,7 @@ where
     }
 
     /// Sets the initial standard deviation vector used in the optimiser. The vector should contain positive values which
-    /// should be *large* when the uncertainy is high.
+    /// should be *large* when the uncertainty is high.
     /// 
     /// ## Examples
     /// ```

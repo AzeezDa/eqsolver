@@ -241,11 +241,11 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
-    ///     .with_tolerance(1e-3)
+    ///     .with_tol(1e-3)
     ///     .solve(guess)
     ///     .unwrap();
     /// ```
-    pub fn with_tolerance(&mut self, tolerance: T) -> &mut Self {
+    pub fn with_tol(&mut self, tolerance: T) -> &mut Self {
         self.tolerance = tolerance;
         self
     }
