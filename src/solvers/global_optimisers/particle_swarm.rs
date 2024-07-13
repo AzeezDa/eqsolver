@@ -9,7 +9,7 @@ use std::{marker::PhantomData, slice::Iter};
 const DEFAULT_INERTIA_WEIGHT: f64 = 0.5;
 const DEFAULT_COGNIIVE_COEFFICIENT: f64 = 1.0;
 const DEFAULT_SOCIAL_COEFFICIENT: f64 = 1.0;
-const DEFAULT_PARTICLE_COUNT: usize = 1000;
+const DEFAULT_PARTICLE_COUNT: usize = 100;
 const DEFAULT_STALL_ITERATIONS: usize = 50;
 
 struct Particle<T: Scalar, D: Dim>

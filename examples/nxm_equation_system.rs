@@ -11,8 +11,8 @@ fn main() {
     let c1 = [1., 0., 4.];
     let c2 = [6., 2., 2.];
 
-    // We want (x, y) such that F(x, y) = (x - X)^2 + (y - Y) - R^2 is minimized in a
-    // least-square sense for data (X, Y, R) in c0, c1, c2
+    // We want (x, y) such that F(x, y) = (x - X)^2 + (y - Y) - R^2 is minimized
+    // in a least-square sense for data (X, Y, R) in c0, c1, c2
     let f = |v: Vector2<f64>| {
         Vector3::new(
             (v[0] - c0[0]).powi(2) + (v[1] - c0[1]).powi(2) - c0[2] * c0[2],

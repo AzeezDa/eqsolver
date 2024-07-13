@@ -3,10 +3,8 @@ use nalgebra::{vector, SVector};
 use std::f64::consts::PI;
 
 fn main() {
-    /*
-    This is the Rastrigin function, an objective function with many local minima and a global minima at
-    the zero vector
-    */
+    // This is the Rastrigin function, an objective function with many local
+    // minima and a global minima at the zero vector
     const SIZE: usize = 10;
     let rastrigin = |v: SVector<f64, SIZE>| {
         let mut total = 10. * SIZE as f64;
@@ -27,8 +25,8 @@ fn main() {
         .solve(guess)
         .unwrap();
 
-    // Cross-Entropy (ce) method uses a vector of standard deviations (how uncertain the guess is)
-    // The default is a vector of 1s
+    // Cross-Entropy (ce) method uses a vector of standard deviations (how
+    // uncertain the guess is). The default is a vector of 1s
     let standard_deviations = SVector::repeat(100.);
     let solution_ce = CrossEntropy::new(rastrigin)
         .with_std_dev(standard_deviations)

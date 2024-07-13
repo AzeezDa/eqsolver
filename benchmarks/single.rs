@@ -8,6 +8,22 @@ criterion_group!(
     bench_single_variable_rastrigin
 );
 
+macro_rules! bench_with_all_methods {
+    ($c:ident, $f:expr, $d:expr, $newton_guess:expr, $secant_x0:expr, $secant_x1:expr) => {
+        $c.bench_function("newton", |bh| {
+            bh.iter(|| Newton::new($f, $d).solve(black_box($newton_guess)));
+        });
+
+        $c.bench_function("newtonfd", |bh| {
+            bh.iter(|| FDNewton::new($f).solve(black_box($newton_guess)));
+        });
+
+        $c.bench_function("secant", |bh| {
+            bh.iter(|| Secant::new($f).solve(black_box($secant_x0), black_box($secant_x1)));
+        });
+    };
+}
+
 fn bench_single_variable_heavy(c: &mut Criterion) {
     let mut group = c.benchmark_group("1D Heavy");
     let f = |x: f64| {
@@ -26,17 +42,7 @@ fn bench_single_variable_heavy(c: &mut Criterion) {
         sum
     };
 
-    group.bench_function("newton", |bh| {
-        bh.iter(|| Newton::new(f, d).solve(black_box(1.)));
-    });
-
-    group.bench_function("newtonfd", |bh| {
-        bh.iter(|| FDNewton::new(f).solve(black_box(1.)));
-    });
-
-    group.bench_function("secant", |bh| {
-        bh.iter(|| Secant::new(f).solve(black_box(0.5), black_box(1.)));
-    });
+    bench_with_all_methods!(group, f, d, 1., 0.5, 1.);
 }
 
 fn bench_single_variable_rastrigin(c: &mut Criterion) {
@@ -44,15 +50,5 @@ fn bench_single_variable_rastrigin(c: &mut Criterion) {
     let f = |x: f64| 10. + x * x - 10. * (2. * PI * x).cos();
     let d = |x: f64| 2. * x + 20. * PI * (2. * PI * x).sin();
 
-    group.bench_function("newton", |bh| {
-        bh.iter(|| Newton::new(f, d).solve(black_box(0.5)));
-    });
-
-    group.bench_function("newtonfd", |bh| {
-        bh.iter(|| FDNewton::new(f).solve(black_box(0.5)));
-    });
-
-    group.bench_function("secant", |bh| {
-        bh.iter(|| Secant::new(f).solve(black_box(-0.5), black_box(0.5)));
-    });
+    bench_with_all_methods!(group, f, d, 0.5, -0.5, 0.5);
 }

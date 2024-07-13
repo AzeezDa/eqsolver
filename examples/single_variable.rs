@@ -6,7 +6,8 @@ fn main() {
 
     let solution_newton = Newton::new(f, df).solve(0.8).unwrap(); // Starting guess is 0.8
 
-    // Finite difference Newton requires no derivative to be inputted (it approximates it)
+    // Finite difference Newton requires no derivative to be inputted (it
+    // approximates it)
     let solution_fdnewton = FDNewton::new(f).solve(0.8).unwrap(); // Starting guess is 0.8
 
     // Secant method requires no derivative too but needs two starting points

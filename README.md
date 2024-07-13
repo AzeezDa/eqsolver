@@ -54,16 +54,16 @@ There are two versions of this method, one requires the Jacobian matrix to be gi
 ### Global Optimisers of Objective Functions
 <details>
 <summary>Particle Swarm Optimisation</summary>
-For a function F: Rn → R, this method finds x such that F(x) <= F(y) for all y, i.e. the global minimum. This method requires an initial guess and bounds for which the global minimum exists. This method is significantly slower than the Cross-Entropy method below.
+For a function F: Rn → R, this method finds x such that F(x) <= F(y) for all y, i.e. the global minimum. This method requires an initial guess and bounds for which the global minimum exists.
 
-Use this method if you KNOW the bounds of your parameters but DON'T KNOW how uncertain each parameter is.
+Use this method if you know the bounds of the parameters.
 </details>
 
 <details>
 <summary>Cross-Entropy Method</summary>
 For a function F: Rn → R, this method finds x such that F(x) <= F(y) for all y, i.e. the global minimum. This method requires an initial guess and a Rn vector of standard deviations (uncertainty of each parameter).
 
-Use this method if you DON'T KNOW the bounds of your parameters but KNOW how uncertain each parameter is.
+Use this method if you DON'T KNOW the bounds of the parameters but KNOW how uncertain each parameter is.
 </details>
 
 ### Ordinary Differential Equations (or systems of them)

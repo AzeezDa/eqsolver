@@ -1,7 +1,7 @@
 use eqsolver::ODESolver;
 
 fn main() {
-    // Want to solve: y' = f(t, y) = t*y, starting at (0, 0.2) and ending at t = 2
+    // Want to solve: y' = f(t, y) = t*y, starting at t = 0 and ending at t = 2, know that x(0) = 0.2
     let f = |t: f64, y: f64| t * y;
     let (x0, y0) = (0., 0.2);
     let x_end = 2.;

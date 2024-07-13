@@ -15,7 +15,8 @@ fn main() {
     // Newton's method requires the Jacobian matrix as input
     let solution_newton = MultiVarNewton::new(f, j).solve(guess).unwrap();
 
-    // The finite difference method approximates the Jacobian matrix and thus is not required to be inputted
+    // The finite difference method approximates the Jacobian matrix and thus is
+    // not required to be inputted
     let solution_newtonfd = MultiVarNewtonFD::new(f).solve(guess).unwrap();
 
     println!("Newton:   {solution_newton:?}");

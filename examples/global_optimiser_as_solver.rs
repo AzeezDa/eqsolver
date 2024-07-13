@@ -3,16 +3,19 @@ use nalgebra::{vector, Vector2, Vector3};
 
 fn main() {
     /*
-    This example is about finding the point in R2 closest to three circles (in R2),
-    which is the similar to the example in examples/mxn_equation_system.rs
+    This example is about finding the point in R2 closest to three circles (in
+    R2), which is the similar to the example in examples/nxm_equation_system.rs
 
-    Here, it is however done using the global optimisers by converting the equation system problem
-    into a global optimisation problem. More generally, say we want to solve F(x) = b, for x in Rm and b in Rn.
-    We can use the Levenberg-Marquardt or Gauss-Newton methods or we can use global optimisers.
-    We create a new function G(x) = ||F(x) - b||, i.e. the norm of F(x) - b. The range of G is one dimensional and
-    its domain is in Rn; it this thus an objective function whose global minimum X gives zero objective function value
-    if it is a solution to the equation F(x) = b. If there are no solutions, the closest x that minimises the norm will
-    be calculated.
+    Here, it is however done using the global optimisers by converting the
+    equation system problem into a global optimisation problem. More
+    generally, say we want to solve F(x) = b, for x in Rm and b in Rn.  We
+    can use the Levenberg-Marquardt or Gauss-Newton methods or we can use
+    global optimisers.  For the latter we, create a new function G(x) = ||F(x)
+    - b||, i.e. the norm of F(x) - b. The range of G is one dimensional and
+    its domain is in Rn; it this thus an objective function whose global
+    minimum X gives zero objective function value if it is a solution to the
+    equation F(x) = b.  If there are no solutions, the closest x that
+    minimises the norm will be calculated.
     */
 
     // [Center_x, Center_y, Radius] of the circles

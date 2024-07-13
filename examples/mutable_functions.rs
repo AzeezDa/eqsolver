@@ -2,11 +2,10 @@ use eqsolver::single_variable::Secant;
 use std::cell::RefCell;
 
 fn main() {
-    /*
-    Sometimes the function to be solved requires mutation of its environment,
-    for example saving the values that function was called with, or for memoization.
-    This mutation behaviour can be done using a `std::cell::RefCell` as in this example.
-    */
+    // Sometimes the function to be solved requires mutation of its environment,
+    // for example saving the values that function was called with, or for
+    // memoization.  This mutation behaviour can be done using a
+    // `std::cell::RefCell` as in this example.
 
     let trace = RefCell::new(vec![]);
     let f = |x: f64| {
@@ -18,5 +17,6 @@ fn main() {
 
     println!("{:?}", trace.borrow());
 
-    // See this issue, https://github.com/AzeezDa/eqsolver/issues/5, for the reasoning behind this technicality.
+    // See this issue, https://github.com/AzeezDa/eqsolver/issues/5, for the
+    // reasoning behind this technicality.
 }
