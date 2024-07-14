@@ -86,6 +86,7 @@ where
 
     /// Set the tolerance of the optimiser.
     ///
+    /// **Default Tolerance:** `1e-6`
     ///## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;
@@ -112,6 +113,7 @@ where
     /// Set the maximum number of iterations of the optimiser. After that number of iterations is reached,
     /// the current mean vector (best value) is returned.
     /// 
+    /// **Default Max Iterations:** `50`
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;
@@ -138,6 +140,7 @@ where
     /// Sets the number of samples drawn each iteration. This value should be greater 
     /// than the importance selection size
     /// 
+    /// **Default Sample Size:** `100`
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;
@@ -164,6 +167,7 @@ where
     /// Sets how many of the sampled values are selected in order of smallest objective function value. 
     /// This value should be less than sample size.
     /// 
+    /// **Default Importance Selection Size:** `10`
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;
@@ -193,6 +197,7 @@ where
     /// Sets the initial standard deviation vector used in the optimiser. The vector should contain positive values which
     /// should be *large* when the uncertainty is high.
     /// 
+    /// **Default Standard Deviations:** `[1.0, 1.0,... 1.0]`
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;

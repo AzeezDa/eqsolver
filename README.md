@@ -1,4 +1,4 @@
-# `eqsolver` - An Equation Solver and Optimisation library for Rust
+# `eqsolver` - An Equation Solver and Optimisation Library for Rust
 
 This Rust library is aimed at numerically solving equations and optimising objective functions.
 
@@ -7,7 +7,8 @@ The library is **passively-maintained**, meaning no other features will be added
 Contributions and feedback to this library are more than welcome! 
 
 ## Supported Methods
-The descriptions below specify the largest possible domain and codomain (both Rn), but any (well-behaved) subset of Rn for the domain and codomain also works.
+The following methods are available to use in the library. Their descriptions use the largest possible domain and codomain for the functions, which is Rn. However, any (well-behaved) subset of Rn also works. Additionally, the methods that use multivariate input or output heavily utilises the linear algebra library for Rust [nalgebra](https://nalgebra.org/).
+
 ### Single Variable
 <details>
 <summary>Newton-Raphson's Method</summary>
@@ -84,4 +85,80 @@ This method requires four calls to the function corresponding to the equation an
 </details>
 
 ## Examples
-For examples, please see the [examples](examples) directory.
+### Example of Newton-Raphson's method with finite differences.
+```rust
+use eqsolver::single_variable::FDNewton;
+
+let f = |x: f64| x.exp() - 1./x; // e^x = 1/x
+let solution = FDNewton::new(f).solve(0.5); // Starting guess is 0.5
+```
+
+### Example of Newton-Raphson's method with finite differences for system of equations
+```rust
+use eqsolver::multivariable::MultiVarNewtonFD;
+use nalgebra::{vector, Vector2};
+
+// Want to solve x^2 - y = 1 and xy = 2
+let f = |v: Vector2<f64>| vector![v[0].powi(2) - v[1] - 1., v[0] * v[1] - 2.];
+
+let solution = MultiVarNewtonFD::new(f).solve(vector![1., 1.]); // Starting guess is (1, 1)
+```
+
+### Example of solution for a single first order ODEs
+```rust
+use eqsolver::ODESolver;
+
+let f = |t: f64, y: f64| t * y; // y' = f(t, y) = ty
+let (x0, y0) = (0., 0.2);
+let x_end = 2.;
+let step_size = 1e-3;
+
+let solution = ODESolver::new(f, x0, y0, step_size).solve(x_end);
+```
+
+### Example of solving a non-linear least square problem with the Levenberg-Marquardt method
+```rust
+use eqsolver::multivariable::LevenbergMarquardtFD;
+use nalgebra::{vector, Vector2};
+
+let c0 = [3., 5., 3.];
+let c1 = [1., 0., 4.];
+let c2 = [6., 2., 2.];
+
+// Function from R2 to R3
+let f = |v: Vector2<f64>| {
+    vector!(
+        (v[0] - c0[0]).powi(2) + (v[1] - c0[1]).powi(2) - c0[2] * c0[2],
+        (v[0] - c1[0]).powi(2) + (v[1] - c1[1]).powi(2) - c1[2] * c1[2],
+        (v[0] - c2[0]).powi(2) + (v[1] - c2[1]).powi(2) - c2[2] * c2[2],
+    )
+};
+
+let solution_lm = LevenbergMarquardtFD::new(f)
+    .solve(vector![4.5, 2.5]) // Guess
+    .unwrap();
+```
+
+### Example of using global optimisers on the Rastrigin function
+```rust
+use eqsolver::global_optimisers::{CrossEntropy, ParticleSwarm};
+use nalgebra::SVector;
+use std::f64::consts::PI;
+
+const SIZE: usize = 10;
+let rastrigin = |v: SVector<f64, SIZE>| {
+    v.fold(10. * SIZE as f64, |acc, x| {
+        acc + x * x - 10. * f64::cos(2. * PI * x)
+    })
+};
+
+let bounds = SVector::repeat(10.);
+let standard_deviations = SVector::repeat(10.);
+let guess = SVector::repeat(5.);
+
+let opt_pso = ParticleSwarm::new(rastrigin, -bounds, bounds).solve(guess);
+let opt_ce = CrossEntropy::new(rastrigin)
+    .with_std_dev(standard_deviations)
+    .solve(guess);
+```
+For more examples, please see the [examples](examples) directory.

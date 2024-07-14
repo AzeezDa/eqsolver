@@ -55,7 +55,7 @@ impl<T: Copy, const N: usize> CircularArray<T, N> {
 ///
 /// **Default Max Iterations:** `50`
 ///
-/// **Default Particle Count:** `1000`
+/// **Default Particle Count:** `100`
 ///
 /// **Default Inertia Weight:** `0.5`
 ///
@@ -147,6 +147,7 @@ where
     /// Set the inertia weight of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
     ///
+    /// **Default Inertia Weight:** `0.5`
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -173,6 +174,9 @@ where
 
     /// Set the cognitive coefficient of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
+    /// 
+    /// **Default Cognitive Coefficient:** `1.0`
+    /// 
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -199,6 +203,9 @@ where
 
     /// Set the social coefficient of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
+    /// 
+    /// **Default Social Coefficient:** `1.0`
+    /// 
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -226,6 +233,9 @@ where
     /// Set the tolerance of the optimiser. If many (exact amount specified in implementation) of the previous
     /// best global minimums found are in absolve value less than the tolerance then the optimiser terminates
     /// and returns the best value found
+    /// 
+    /// **Default Tolerance:** `1e-6`
+    /// 
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -252,6 +262,9 @@ where
 
     /// Set the number of particles in the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
+    /// 
+    /// **Default Particle Count:** `100`
+    /// 
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -278,6 +291,9 @@ where
 
     /// Set the maximum number of iterations of the optimiser. The optimiser returns the best value found after
     /// it has iterated that amount of number of iterations.
+    /// 
+    /// **Default Max Iterations:** `50`
+    /// 
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
