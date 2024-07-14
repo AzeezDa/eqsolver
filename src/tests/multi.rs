@@ -1,55 +1,9 @@
-use crate::finite_differences::{backward, central, forward};
-use crate::{multivariable::*, single_variable::*, ODESolver, SolverError};
-use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector1, Vector2, Vector3};
+use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector2, Vector3};
 
-#[test]
-fn solve_secant() {
-    let f = |x: f64| x * x - 2.;
-
-    let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).unwrap();
-
-    assert!((solution - 2_f64.sqrt()).abs() <= 1e-3);
-    assert!((solution - 2_f64.sqrt()).abs() > 1e-12);
-}
-
-#[test]
-fn solve_newton() {
-    let f = |x: f64| x.sin() * 2. - x;
-    let df = |x: f64| x.cos() * 2. - 1.;
-    const SOLUTION: f64 = 1.8954942670339809471; // From Wolfram Alpha
-
-    let solution = Newton::new(f, df).with_tol(1e-3).solve(2.).unwrap();
-
-    assert!((solution - SOLUTION).abs() <= 1e-3);
-    assert!((solution - SOLUTION).abs() > 1e-12);
-}
-
-#[test]
-fn finite_differences() {
-    let f = |x: f64| x.powi(3);
-    let x = -1.;
-
-    const SOLUTION: f64 = 3.;
-    let dx_c = central(f, x, f64::EPSILON.sqrt());
-    let dx_f = forward(f, x, f64::EPSILON);
-    let dx_b = backward(f, x, f64::EPSILON);
-
-    assert!((dx_c - SOLUTION).abs() <= f64::EPSILON);
-    assert!((dx_f - SOLUTION).abs() <= f64::EPSILON);
-    assert!((dx_b - SOLUTION).abs() <= f64::EPSILON);
-}
-
-#[test]
-fn newton_with_finite_differences() {
-    let f = |x: f64| x.exp().sin() / (1. + x * x) - (-x).exp();
-
-    const SOLUTION: f64 = 0.1168941457861853920; // From Wolfram Alpha
-
-    let solution = FDNewton::new(f).with_tol(1e-3).solve(0.).unwrap();
-
-    assert!((solution - SOLUTION).abs() <= 1e-3);
-    assert!((solution - SOLUTION).abs() > 1e-12);
-}
+use crate::multivariable::{
+    GaussNewton, GaussNewtonFD, LevenbergMarquardt, LevenbergMarquardtFD, MultiVarNewton,
+    MultiVarNewtonFD,
+};
 
 #[test]
 fn multi_var_newton() {
@@ -129,6 +83,54 @@ fn gauss_newton() {
     assert!((SOLUTION - solution_gn).norm() > 1e-12);
     assert!((SOLUTION - solution_gn_fd).norm() <= 1e-3);
     assert!((SOLUTION - solution_gn_fd).norm() > 1e-12);
+}
+
+#[test]
+fn levenberg_marquardt() {
+    // Test is about finding point closest to three circles in R2
+
+    // [Center_x, Center_y, Radius]
+    let c0 = [3., 5., 3.];
+    let c1 = [1., 0., 4.];
+    let c2 = [6., 2., 2.];
+
+    // Want to (x, y) such that F(x, y) = (x - X)^2 + (y - Y) - R^2 is minimized in a Least Square sense for data in c0, c1, c2
+    let f = |v: Vector2<f64>| {
+        Vector3::new(
+            (v[0] - c0[0]).powi(2) + (v[1] - c0[1]).powi(2) - c0[2] * c0[2],
+            (v[0] - c1[0]).powi(2) + (v[1] - c1[1]).powi(2) - c1[2] * c1[2],
+            (v[0] - c2[0]).powi(2) + (v[1] - c2[1]).powi(2) - c2[2] * c2[2],
+        )
+    };
+
+    let j = |v: Vector2<f64>| {
+        Matrix3x2::new(
+            2. * (v[0] - c0[0]),
+            2. * (v[1] - c0[1]),
+            2. * (v[0] - c1[0]),
+            2. * (v[1] - c1[1]),
+            2. * (v[0] - c2[0]),
+            2. * (v[1] - c2[1]),
+        )
+    };
+
+    // Solved using Octave (Can also be checked visually in Desmos or similar)
+    const SOLUTION: Vector2<f64> = vector![4.217265312839526, 2.317879970005811];
+
+    let solution_lm = LevenbergMarquardt::new(f, j)
+        .with_tol(1e-3)
+        .solve(vector![4.5, 2.5])
+        .unwrap();
+
+    let solution_lm_fd = LevenbergMarquardtFD::new(f)
+        .with_tol(1e-3)
+        .solve(vector![4.5, 2.5])
+        .unwrap();
+
+    assert!((SOLUTION - solution_lm).norm() <= 1e-3);
+    assert!((SOLUTION - solution_lm).norm() > 1e-12);
+    assert!((SOLUTION - solution_lm_fd).norm() <= 1e-3);
+    assert!((SOLUTION - solution_lm_fd).norm() > 1e-12);
 }
 
 #[test]
@@ -213,79 +215,4 @@ fn dyn_gauss_newton() {
     assert!((SOLUTION - &solution_gn).norm() > 1e-12);
     assert!((SOLUTION - &solution_gn_fd).norm() <= 1e-3);
     assert!((SOLUTION - &solution_gn_fd).norm() > 1e-12);
-}
-
-#[test]
-fn max_iter_reached_detection() {
-    // "f(x)=x^2 + 1" has no roots, so solver can't ever converge
-    let f = |v: Vector1<f64>| Vector1::new(v[0].powi(2) + 1.0);
-    let j = |v: Vector1<f64>| Vector1::new(2. * v[0]);
-
-    let solution = MultiVarNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    let solution = MultiVarNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    let solution = GaussNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    let solution = GaussNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    // Single-variable solvers
-    let f = |v: f64| v.powi(2) + 1.;
-    let j = |v: f64| 2. * v;
-
-    let solution = Newton::new(f, j).with_tol(1e-3).solve(3.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    let solution = FDNewton::new(f).with_tol(1e-3).solve(3.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-
-    let solution = Secant::new(f).with_tol(1e-3).solve(3., 4.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
-}
-
-#[test]
-fn mutable_state_function() {
-    use std::cell::RefCell;
-    let trace = RefCell::new(vec![]);
-    let f = |x: f64| {
-        trace.borrow_mut().push(x);
-        x * x - 2.
-    };
-
-    let solution = Secant::new(f).with_tol(1e-3).solve(0., 2.).unwrap();
-    assert!((solution - 2_f64.sqrt()).abs() <= 1e-3);
-    assert!(trace.borrow().len() > 0);
-}
-
-#[test]
-fn first_order_ode_solver() {
-    let f = |t: f64, y: f64| t * y; // y' = f(t, y) = ty
-    let (x0, y0) = (0., 0.2);
-    let x_end = 2.;
-    let step_size = 1e-3;
-    const SOLUTION: f64 = 1.4778112197861300;
-
-    let solver = ODESolver::new(f, x0, y0, step_size);
-    let solution = solver.solve(x_end).unwrap();
-
-    assert!((solution - SOLUTION).abs() < 1e-2);
-    assert_eq!(solver.solve(-1.).unwrap_err(), SolverError::IncorrectInput); // Solvers only go forward
-}
-
-#[test]
-fn ode_system_solver() {
-    let f = |t: f64, y: Vector2<f64>| Vector2::new(y[1], t - y[0]); // y'' = f(t, y) = ty
-    let (x0, y0) = (0., vector![1., 1.]);
-    let x_end = 2.;
-    let step_size = 1e-3;
-    const SOLUTION: f64 = 1.5838531634528576;
-
-    let solver = ODESolver::new(f, x0, y0, step_size);
-    let solution = solver.solve(x_end).unwrap();
-
-    assert!((solution[0] - SOLUTION).abs() < 1e-2);
 }

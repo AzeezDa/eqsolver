@@ -1,37 +1,20 @@
-use nalgebra::{Vector, Matrix, DefaultAllocator, allocator::Allocator};
-
-mod secant;
-mod newton;
-mod fdnewton;
-mod multinewton;
-mod multinewton_fd;
-mod gaussnewton;
-mod gaussnewton_fd;
-mod ode_solver;
+use nalgebra::{allocator::Allocator, DefaultAllocator, Matrix, Vector};
 
 /// Methods of derivative approximation
 pub mod finite_differences;
 
 /// Root-finders for equations of a single variable
-pub mod single_variable {
-    pub use super::{
-        secant::Secant,
-        newton::Newton,
-        fdnewton::FDNewton,
-    };
-}
+pub mod single_variable;
 
 /// Root-finders for equations of multiple variables
-pub mod multivariable {
-    pub use super::{
-        multinewton::MultiVarNewton,
-        multinewton_fd::MultiVarNewtonFD,
-        gaussnewton::GaussNewton,
-        gaussnewton_fd::GaussNewtonFD
-    };
-}
+pub mod multivariable;
 
-pub use ode_solver::ODESolver;
+/// Finds global optimums of objective functions
+pub mod global_optimisers;
+
+mod ode_solver;
+/// Ordinary Differential Equation solvers
+pub use ode_solver::*;
 
 /// Default tolerance (error of magnitude)
 pub const DEFAULT_TOL: f64 = 1e-6;
@@ -55,25 +38,8 @@ pub enum SolverError {
     BadJacobian,
 }
 
-/// Types of methods for ODE solving
-pub enum ODESolverMethod {
-    /// The Explicit Euler method, ([Wikipedia](https://en.wikipedia.org/wiki/Euler_method))
-    /// 
-    /// Order of accuracy: 1
-    EulerForward,
-
-    /// Heun's Method (also known as Runge-Kutta 2), ([Wikipedia](https://en.wikipedia.org/wiki/Heun%27s_method))
-    /// 
-    /// Order of accuracy: 2
-    Heun,
-
-    /// Runge-Kutta 4, ([Wikipedia](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods))
-    /// 
-    /// Order of accuracy: 4
-    RungeKutta4
-}
-
+/// Alias for `Result<T, SolverError>`
 pub type SolverResult<T> = Result<T, SolverError>;
 
-type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<T, D>>::Buffer>;
-type MatrixType<T, R, C> = Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer>;
+type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<D>>::Buffer<T>>;
+type MatrixType<T, R, C> = Matrix<T, R, C, <DefaultAllocator as Allocator<R, C>>::Buffer<T>>;

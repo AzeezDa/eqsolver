@@ -1,10 +1,8 @@
-use std::marker::PhantomData;
-
-use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-#[allow(dead_code)]
-use nalgebra::ComplexField;
-use nalgebra::{allocator::Allocator, Const, DefaultAllocator, Dim};
+use super::VectorType;
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
+use std::marker::PhantomData;
 
 /// # Gauss-Newton with Finite Differences
 ///
@@ -13,21 +11,7 @@ use num_traits::{Float, Signed};
 /// **Default Tolerance:** `1e-6`
 ///
 /// **Default Max Iterations:** `50`
-pub struct GaussNewtonFD<T, R, C, F>
-where
-    T: Float + ComplexField<RealField = T> + Signed,
-    R: Dim,
-    C: Dim,
-    F: Fn(VectorType<T, C>) -> VectorType<T, R>,
-    DefaultAllocator: Allocator<T, C, R>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, Const<1>, R>
-        + Allocator<T, C, Const<1>>
-        + Allocator<T, Const<1>, C>
-        + Allocator<T, R, C>
-        + Allocator<T, C, C>
-{
+pub struct GaussNewtonFD<T, R, C, F> {
     f: F,
     h: T,
     tolerance: T,
@@ -42,14 +26,14 @@ where
     R: Dim,
     C: Dim,
     F: Fn(VectorType<T, C>) -> VectorType<T, R>,
-    DefaultAllocator: Allocator<T, C, R>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, Const<1>, R>
-        + Allocator<T, C, Const<1>>
-        + Allocator<T, Const<1>, C>
-        + Allocator<T, R, C>
-        + Allocator<T, C, C>
+    DefaultAllocator: Allocator<C, R>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<U1, R>
+        + Allocator<C, U1>
+        + Allocator<U1, C>
+        + Allocator<R, C>
+        + Allocator<C, C>,
 {
     /// Create a new instance of the algorithm
     ///
@@ -92,13 +76,13 @@ where
     /// Run the algorithm
     ///
     /// Finds `x` such that `||F(x)||` is minimized where `F` is the overdetermined system of equations.
-    pub fn solve(&self, mut x0: VectorType<T, C>) -> Result<VectorType<T, C>, SolverError> {
+    pub fn solve(&self, mut x0: VectorType<T, C>) -> SolverResult<VectorType<T, C>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
         let fx = (self.f)(x0.clone());
-        let zero = (fx * x0.clone().transpose()).scale(T::zero());
+        let zero = (fx * x0.transpose()).scale(T::zero());
 
-        while dv.abs().max() > self.tolerance && iter < self.iter_max {
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 
@@ -106,7 +90,7 @@ where
             for i in 0..j.ncols() {
                 let mut x_h = x0.clone();
                 x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
-                let df = ((self.f)(x_h) - fx.clone()) / self.h; // Derivative of F with respect to x_i
+                let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..j.nrows() {
                     j[(k, i)] = df[k];
                 }
@@ -114,9 +98,9 @@ where
 
             // Gauss-Newton Iteration
             let jt = j.transpose();
-            if let Some(jjt_inv) = (jt.clone() * j).try_inverse() {
+            if let Some(jjt_inv) = (&jt * j).try_inverse() {
                 dv = jjt_inv * jt * fx;
-                x0 = x0 - dv.clone();
+                x0 -= &dv;
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);

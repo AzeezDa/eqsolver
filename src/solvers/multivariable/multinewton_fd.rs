@@ -1,21 +1,19 @@
+use super::VectorType;
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
+use num_traits::{Float, Signed};
 use std::marker::PhantomData;
 
-use super::{SolverError, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
-#[allow(dead_code)]
-use nalgebra::ComplexField;
-use nalgebra::{allocator::Allocator, DefaultAllocator, Dim, Const};
-use num_traits::{Float, Signed};
-
 /// # Multivariate Newton-Raphson with Finite Differences
-/// 
+///
 /// This struct finds `x` such that `F(x) = 0` where `F: Rn ⟶ Rn` is a vectorial function. The vector `x` is given as a nalgebra vector and the solution will be of the same dimension as the input vector. This struct approximates the Jacobian using finite differences. This struct uses the Newton-Raphson method for system of equations ([Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method#k_variables,_k_functions)).
 ///
 /// **Default Tolerance:** `1e-6`
 ///
 /// **Default Max Iterations:** `50`
-/// 
+///
 /// ## Examples
-/// 
+///
 /// ```
 /// use eqsolver::multivariable::MultiVarNewtonFD;
 /// use nalgebra::{Vector2, Matrix2};
@@ -32,13 +30,7 @@ use num_traits::{Float, Signed};
 ///
 /// assert!((solution - SOLUTION).norm() <= 1e-6);
 /// ```
-pub struct MultiVarNewtonFD<T, D, F>
-where
-    T: Float + ComplexField<RealField = T> + Signed,
-    D: Dim,
-    F: Fn(VectorType<T, D>) -> VectorType<T, D>,
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D> + Allocator<T, Const<1>, D>,
-{
+pub struct MultiVarNewtonFD<T, D, F> {
     f: F,
     h: T,
     tolerance: T,
@@ -51,12 +43,12 @@ where
     T: Float + ComplexField<RealField = T> + Signed,
     D: Dim,
     F: Fn(VectorType<T, D>) -> VectorType<T, D>,
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D> + Allocator<T, Const<1>, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D> + Allocator<U1, D>,
 {
     /// Set up the solver
-    /// 
+    ///
     /// Instantiate the solver using the given vectorial function `F` that is closure that takes a nalgebra vector and outputs a nalgebra vector of the same size.
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::multivariable::MultiVarNewtonFD;
@@ -72,14 +64,14 @@ where
             h: Float::sqrt(T::epsilon()),
             tolerance: T::from(DEFAULT_TOL).unwrap(),
             iter_max: DEFAULT_ITERMAX,
-            d_phantom: PhantomData
+            d_phantom: PhantomData,
         }
     }
 
     /// Updates the solver's tolerance (Magnitude of Error).
     ///
     /// **Default Tolerance:** `1e-6`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::multivariable::MultiVarNewtonFD;
@@ -112,7 +104,7 @@ where
     /// Updates the step length used in the finite difference
     ///
     /// **Default Step length for Finite Difference:** `√(Machine Epsilon)`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::multivariable::MultiVarNewtonFD;
@@ -134,11 +126,11 @@ where
     }
 
     /// Solves for `x` in `f(x) = 0` where `f` is the stored function.
-    /// 
+    ///
     /// ## Examples
-    /// 
+    ///
     /// ### Working solution
-    /// 
+    ///
     /// ```
     /// use eqsolver::multivariable::MultiVarNewtonFD;
     /// use nalgebra::{Vector2, Matrix2};
@@ -155,9 +147,9 @@ where
     ///
     /// assert!((solution - SOLUTION).norm() <= 1e-6);
     /// ```
-    /// 
+    ///
     /// ### Bad Jacobian Error
-    /// 
+    ///
     /// ```
     /// use eqsolver::{multivariable::MultiVarNewtonFD, SolverError};
     /// use nalgebra::{Vector2, Matrix2};
@@ -171,13 +163,13 @@ where
     ///
     /// assert_eq!(solution.err().unwrap(), SolverError::BadJacobian);
     /// ```
-    pub fn solve(&self, mut x0: VectorType<T, D>) -> Result<VectorType<T, D>, SolverError> {
+    pub fn solve(&self, mut x0: VectorType<T, D>) -> SolverResult<VectorType<T, D>> {
         let mut dv = x0.clone().add_scalar(T::max_value()); // We assume error vector is infinitely long at the start
         let mut iter = 1;
         let dim = x0.nrows();
-        let zero = (x0.clone() * x0.clone().transpose()).scale(T::zero());
-        
-        while dv.abs().max() > self.tolerance && iter < self.iter_max {
+        let zero = (&x0 * x0.transpose()).scale(T::zero());
+
+        while dv.apply_norm(&UniformNorm) > self.tolerance && iter <= self.iter_max {
             let mut j = zero.clone(); // Jacobian, will be approximated below
             let fx = (self.f)(x0.clone());
 
@@ -185,7 +177,7 @@ where
             for i in 0..dim {
                 let mut x_h = x0.clone();
                 x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
-                let df = ((self.f)(x_h) - fx.clone()) / self.h; // Derivative of F with respect to x_i
+                let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..dim {
                     j[(k, i)] = df[k];
                 }
@@ -194,7 +186,7 @@ where
             // Newton-Raphson iteration
             if let Some(j_inv) = j.try_inverse() {
                 dv = j_inv * fx;
-                x0 = x0 - dv.clone();
+                x0 -= &dv;
                 iter += 1;
             } else {
                 return Err(SolverError::BadJacobian);
