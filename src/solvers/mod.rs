@@ -9,6 +9,7 @@ pub mod single_variable;
 /// Root-finders for equations of multiple variables
 pub mod multivariable;
 
+#[cfg(feature = "global_optimisers")]
 /// Finds global optimums of objective functions
 pub mod global_optimisers;
 
