@@ -42,6 +42,7 @@ fn main() {
     let lower_bounds = vector![1., 1.];
     let upper_bounds = vector![7., 7.];
     let solution_pso = ParticleSwarm::new(f_normed, lower_bounds, upper_bounds)
+        .unwrap()
         .solve(guess)
         .unwrap();
 

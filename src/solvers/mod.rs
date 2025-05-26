@@ -36,6 +36,9 @@ pub enum SolverError {
 
     /// A Jacobian Matrix in the iteration was singular or ill-defined
     BadJacobian,
+
+    /// An error from an external crate or library
+    ExternalError,
 }
 
 /// Alias for `Result<T, SolverError>`

@@ -1,7 +1,7 @@
 use crate::{solvers::VectorType, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::Float;
-use rand::thread_rng;
+use rand::rng;
 use rand_distr::{Distribution, Normal, StandardNormal};
 use std::marker::PhantomData;
 
@@ -267,7 +267,7 @@ where
                     .iter_mut()
                     .zip(distributions.iter())
                     .for_each(|(x, dist)| {
-                        *x = dist.sample(&mut thread_rng());
+                        *x = dist.sample(&mut rng());
                     });
 
                 x_fx_pairs.push((sample_x.clone(), (self.f)(sample_x)));

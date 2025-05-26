@@ -1,8 +1,8 @@
 use super::VectorType;
-use crate::{SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar};
 use num_traits::Float;
-use rand::thread_rng;
+use rand::rng;
 use rand_distr::{uniform::SampleUniform, Distribution, Uniform};
 use std::{marker::PhantomData, slice::Iter};
 
@@ -84,6 +84,7 @@ impl<T: Copy, const N: usize> CircularArray<T, N> {
 /// let bounds = SVector::repeat(100.);
 
 /// let optimised_position = ParticleSwarm::new(rastrigin, -bounds, bounds)
+///     .unwrap()
 ///     .solve(guess)
 ///     .unwrap();
 /// ```
@@ -114,23 +115,35 @@ where
     /// Sets up the optimiser given the function `f` to optimise and the bounds of the hyperrectangle that contains the global minimum.
     /// The hyperrectangle is given as two vectors `lower_bounds` and `upper_bounds` containing the lower and upper bounds of each dimension,
     /// respectively.
-    pub fn new(f: F, lower_bounds: VectorType<T, D>, upper_bounds: VectorType<T, D>) -> Self {
-        let position_distributions = lower_bounds
+    /// 
+    /// As per the changes in `rand` version 0.9, this will fail if any bounds pair [from, to] does not fulfil from <= to
+    pub fn new(
+        f: F,
+        lower_bounds: VectorType<T, D>,
+        upper_bounds: VectorType<T, D>,
+    ) -> SolverResult<Self> {
+        let Ok(position_distributions) = lower_bounds
             .iter()
             .zip(upper_bounds.iter())
             .map(|(&low, &up)| Uniform::new_inclusive(low, up))
-            .collect();
+            .collect()
+        else {
+            return SolverResult::Err(SolverError::ExternalError);
+        };
 
-        let velocity_distributions = lower_bounds
+        let Ok(velocity_distributions) = lower_bounds
             .iter()
             .zip(upper_bounds.iter())
             .map(|(&low, &up)| {
                 let distance = Float::abs(up - low);
                 Uniform::new_inclusive(-distance, distance)
             })
-            .collect();
+            .collect()
+        else {
+            return SolverResult::Err(SolverError::ExternalError);
+        };
 
-        Self {
+        SolverResult::Ok(Self {
             f,
             inertia_weight: T::from(DEFAULT_INERTIA_WEIGHT).unwrap(),
             cognitive_coefficient: T::from(DEFAULT_COGNIIVE_COEFFICIENT).unwrap(),
@@ -141,7 +154,7 @@ where
             position_distributions,
             velocity_distributions,
             d_phantom: PhantomData,
-        }
+        })
     }
 
     /// Set the inertia weight of the optimiser. For more information about the effect of this parameter,
@@ -163,6 +176,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_inertia_weight(0.8)
     ///     .solve(guess)
     ///     .unwrap();
@@ -174,9 +188,9 @@ where
 
     /// Set the cognitive coefficient of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
-    /// 
+    ///
     /// **Default Cognitive Coefficient:** `1.0`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -192,6 +206,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_cognitive_coefficient(1.5)
     ///     .solve(guess)
     ///     .unwrap();
@@ -203,9 +218,9 @@ where
 
     /// Set the social coefficient of the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
-    /// 
+    ///
     /// **Default Social Coefficient:** `1.0`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -221,6 +236,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_social_coefficient(1.5)
     ///     .solve(guess)
     ///     .unwrap();
@@ -233,9 +249,9 @@ where
     /// Set the tolerance of the optimiser. If many (exact amount specified in implementation) of the previous
     /// best global minimums found are in absolve value less than the tolerance then the optimiser terminates
     /// and returns the best value found
-    /// 
+    ///
     /// **Default Tolerance:** `1e-6`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -251,6 +267,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_tol(1e-3)
     ///     .solve(guess)
     ///     .unwrap();
@@ -262,9 +279,9 @@ where
 
     /// Set the number of particles in the optimiser. For more information about the effect of this parameter,
     /// see [Particle Swarm Optimization](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
-    /// 
+    ///
     /// **Default Particle Count:** `100`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -280,6 +297,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_particle_count(100)
     ///     .solve(guess)
     ///     .unwrap();
@@ -291,9 +309,9 @@ where
 
     /// Set the maximum number of iterations of the optimiser. The optimiser returns the best value found after
     /// it has iterated that amount of number of iterations.
-    /// 
+    ///
     /// **Default Max Iterations:** `50`
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::ParticleSwarm;
@@ -309,6 +327,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .with_iter_max(100)
     ///     .solve(guess)
     ///     .unwrap();
@@ -335,6 +354,7 @@ where
     /// # let guess = SVector::repeat(80.);
     /// # let bounds = SVector::repeat(100.);
     /// let optimised_position = ParticleSwarm::new(f, -bounds, bounds)
+    ///     .unwrap()
     ///     .solve(guess)
     ///     .unwrap();
     /// ```
@@ -349,13 +369,13 @@ where
                 position
                     .iter_mut()
                     .zip(self.position_distributions.iter())
-                    .for_each(|(v, dist)| *v = dist.sample(&mut thread_rng()));
+                    .for_each(|(v, dist)| *v = dist.sample(&mut rng()));
 
                 let mut velocity = x0.clone();
                 velocity
                     .iter_mut()
                     .zip(self.velocity_distributions.iter())
-                    .for_each(|(v, dist)| *v = dist.sample(&mut thread_rng()));
+                    .for_each(|(v, dist)| *v = dist.sample(&mut rng()));
 
                 let cost = (self.f)(position.clone());
                 if cost < global_best_cost {
@@ -373,7 +393,9 @@ where
             })
             .collect();
 
-        let u01 = Uniform::new_inclusive(T::zero(), T::one());
+        let Ok(u01) = Uniform::new_inclusive(T::zero(), T::one()) else {
+            return SolverResult::Err(SolverError::ExternalError);
+        };
 
         for _ in 0..self.iter_max {
             if self.stalled_too_long(global_best_cost, &previous_best) {
@@ -388,8 +410,8 @@ where
             } in particles.iter_mut()
             {
                 for (d, v_d) in velocity.iter_mut().enumerate() {
-                    let rp = u01.sample(&mut thread_rng());
-                    let rg = u01.sample(&mut thread_rng());
+                    let rp = u01.sample(&mut rng());
+                    let rg = u01.sample(&mut rng());
                     *v_d = self.inertia_weight * *v_d
                         + self.cognitive_coefficient * rp * (best_position[d] - position[d])
                         + self.social_coefficient * rg * (global_best_position[d] - position[d]);

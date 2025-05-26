@@ -22,6 +22,7 @@ fn main() {
     let lower_bounds = SVector::repeat(-100.);
     let upper_bounds = SVector::repeat(100.);
     let solution_pso = ParticleSwarm::new(rastrigin, lower_bounds, upper_bounds)
+        .unwrap()
         .solve(guess)
         .unwrap();
 
