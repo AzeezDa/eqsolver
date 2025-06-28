@@ -1,4 +1,7 @@
-use crate::{finite_differences::{backward, central, forward}, single_variable::{FDNewton, Newton, Secant}};
+use eqsolver::{
+    finite_differences::{backward, central, forward},
+    single_variable::{FDNewton, Newton, Secant},
+};
 
 #[test]
 fn solve_secant() {

@@ -1,5 +1,5 @@
-use crate::{
-    integrators::{AdaptiveNewtonCotes, NewtonCotes, Formula},
+use eqsolver::{
+    integrators::{AdaptiveNewtonCotes, Formula, NewtonCotes},
     DEFAULT_TOL,
 };
 

@@ -1,6 +1,6 @@
 use nalgebra::{vector, Vector1};
 
-use crate::{
+use eqsolver::{
     multivariable::{GaussNewton, GaussNewtonFD, MultiVarNewton, MultiVarNewtonFD},
     single_variable::{FDNewton, Newton, Secant},
     SolverError,

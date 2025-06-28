@@ -37,6 +37,3 @@ pub type SolverResult<T> = Result<T, SolverError>;
 
 type VectorType<T, D> = Vector<T, D, <DefaultAllocator as Allocator<D>>::Buffer<T>>;
 type MatrixType<T, R, C> = Matrix<T, R, C, <DefaultAllocator as Allocator<R, C>>::Buffer<T>>;
-
-#[cfg(test)]
-mod tests;
