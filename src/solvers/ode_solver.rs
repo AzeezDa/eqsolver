@@ -1,4 +1,4 @@
-use crate::solvers::{SolverError, SolverResult};
+use crate::{SolverError, SolverResult};
 use nalgebra::{ClosedAddAssign, ClosedMulAssign};
 use num_traits::Float;
 
@@ -252,7 +252,8 @@ where
         self
     }
 
-    /// === PRIVATE FUNCTIONS: A step in the different methods available ===
+    // === PRIVATE FUNCTIONS: A step in the different methods available ===
+
     fn euler_step(&self, x: T, y: V) -> V {
         y + (self.f)(x, y) * self.h
     }

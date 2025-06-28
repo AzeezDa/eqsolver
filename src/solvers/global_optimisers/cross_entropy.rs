@@ -1,4 +1,4 @@
-use crate::{solvers::VectorType, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use crate::{VectorType, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::Float;
 use rand::rng;

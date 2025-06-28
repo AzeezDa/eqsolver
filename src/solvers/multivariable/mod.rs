@@ -11,5 +11,3 @@ pub use levenberg_marquardt::LevenbergMarquardt;
 pub use levenberg_marquardt_fd::LevenbergMarquardtFD;
 pub use multinewton::MultiVarNewton;
 pub use multinewton_fd::MultiVarNewtonFD;
-
-use super::{MatrixType, VectorType};

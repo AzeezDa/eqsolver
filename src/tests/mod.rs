@@ -1,4 +1,5 @@
-pub mod single;
+pub mod misc;
 pub mod multi;
 pub mod ode;
-pub mod misc;
+pub mod single;
+pub mod integrators;
