@@ -1,36 +1,71 @@
 use criterion::{criterion_group, Criterion};
-use std::hint::black_box;
 use eqsolver::integrators::*;
+use std::hint::black_box;
 
-criterion_group!(
-    benches,
-    bench_integrators_heavy,
-);
+criterion_group!(benches, bench_integrators_heavy);
 
 macro_rules! bench_with_all_methods {
     ($c:ident, $f:expr, $from:expr, $to:expr) => {
         $c.bench_function("Trapezium", |bh| {
-            bh.iter(|| NewtonCotes::new($f).with_formula(Formula::Trapezium).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                NewtonCotes::new($f)
+                    .with_formula(Formula::Trapezium)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
 
         $c.bench_function("Simpson's 1/3", |bh| {
-            bh.iter(|| NewtonCotes::new($f).with_formula(Formula::SimpsonsOneThird).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                NewtonCotes::new($f)
+                    .with_formula(Formula::SimpsonsOneThird)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
 
         $c.bench_function("Simpson's 3/8", |bh| {
-            bh.iter(|| NewtonCotes::new($f).with_formula(Formula::SimpsonsThreeEighths).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                NewtonCotes::new($f)
+                    .with_formula(Formula::SimpsonsThreeEighths)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
 
         $c.bench_function("Adaptive Trapezium", |bh| {
-            bh.iter(|| AdaptiveNewtonCotes::new($f).with_formula(Formula::Trapezium).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                AdaptiveNewtonCotes::new($f)
+                    .with_formula(Formula::Trapezium)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
 
         $c.bench_function("Adaptive Simpson's 1/3", |bh| {
-            bh.iter(|| AdaptiveNewtonCotes::new($f).with_formula(Formula::SimpsonsOneThird).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                AdaptiveNewtonCotes::new($f)
+                    .with_formula(Formula::SimpsonsOneThird)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
 
         $c.bench_function("Adaptive Simpson's 3/8", |bh| {
-            bh.iter(|| AdaptiveNewtonCotes::new($f).with_formula(Formula::SimpsonsThreeEighths).integrate(black_box($from), black_box($to)));
+            bh.iter(|| {
+                AdaptiveNewtonCotes::new($f)
+                    .with_formula(Formula::SimpsonsThreeEighths)
+                    .integrate(black_box($from), black_box($to))
+            });
+        });
+
+        $c.bench_function("Monte Carlo", |bh| {
+            bh.iter(|| {
+                MonteCarlo::new($f)
+                    .integrate(black_box($from), black_box($to))
+            });
+        });
+
+        $c.bench_function("MISER", |bh| {
+            bh.iter(|| {
+                MonteCarlo::new($f)
+                    .integrate(black_box($from), black_box($to))
+            });
         });
     };
 }

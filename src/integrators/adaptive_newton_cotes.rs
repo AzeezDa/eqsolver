@@ -1,11 +1,10 @@
 use num_traits::Float;
 
 use super::newton_cotes::Formula;
+use crate::integrators::DEFAULT_MAXIMUM_CUT_COUNT;
 use crate::DEFAULT_TOL;
 use crate::{SolverError, SolverResult};
 
-/// Default number of cuts the interval is split in during Adaptive Newton-Cotes integration
-pub const DEFAULT_MAXIMUM_CUT_AMOUNT: usize = 1000;
 
 /// # Adaptive Newton-Cotes
 ///
@@ -43,7 +42,7 @@ pub const DEFAULT_MAXIMUM_CUT_AMOUNT: usize = 1000;
 pub struct AdaptiveNewtonCotes<T, F> {
     f: F,
     formula: Formula,
-    maximum_cut_amount: usize,
+    maximum_cut_count: usize,
     tolerance: T,
 }
 
@@ -59,7 +58,7 @@ where
         Self {
             f,
             formula: Formula::SimpsonsOneThird,
-            maximum_cut_amount: DEFAULT_MAXIMUM_CUT_AMOUNT,
+            maximum_cut_count: DEFAULT_MAXIMUM_CUT_COUNT,
             tolerance: T::from(DEFAULT_TOL).unwrap(),
         }
     }
@@ -97,14 +96,14 @@ where
     /// ```
     /// use eqsolver::integrators::{AdaptiveNewtonCotes, Formula};
     /// let f = |x: f64| x.sin().exp();
-    /// let integral = AdaptiveNewtonCotes::new(f).with_minimum_cut_size(200)
+    /// let integral = AdaptiveNewtonCotes::new(f).with_maximum_cut_count(200)
     ///                                           .integrate(0., 1.)
     ///                                           .unwrap();
     /// const RESULT: f64 = 1.63186960841805134;
     /// assert!((integral - RESULT).abs() <= 1e-6);
     /// ```
-    pub fn with_minimum_cut_size(&mut self, minimum_cut_size: usize) -> &mut Self {
-        self.maximum_cut_amount = minimum_cut_size;
+    pub fn with_maximum_cut_count(&mut self, maximum_cut_count: usize) -> &mut Self {
+        self.maximum_cut_count = maximum_cut_count;
         self
     }
 
@@ -142,7 +141,7 @@ where
     /// assert!((integral - RESULT).abs() <= 1e-6);
     /// ```
     pub fn integrate(&self, from_0: T, to_0: T) -> SolverResult<T> {
-        let mut intervals = Vec::with_capacity(self.maximum_cut_amount);
+        let mut intervals = Vec::with_capacity(self.maximum_cut_count);
         intervals.push((from_0, to_0));
         let mut result = T::zero();
         let mut number_of_cuts = 0;
@@ -173,7 +172,7 @@ where
                 intervals.push((mid_i, to_i));
                 number_of_cuts += 1;
             }
-            if number_of_cuts > self.maximum_cut_amount {
+            if number_of_cuts > self.maximum_cut_count {
                 return Err(SolverError::MaxIterReached);
             }
         }
