@@ -29,10 +29,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [MISER Integration](https://doi.org/10.1063/1.4822899) for integrating
   functions with single or multiple variable domains.
 - A new output type (`MeanVariance`) for algorithms whose output are random/stochastic.
-- APL2.0 is now a licence of `eqsolver` together with MIT.
+- APL2.0 is now a license of `eqsolver` together with MIT.
 
 ### Changed
 - Upgraded to `rand 0.9.1`, `rand_distr 0.5.1`, and `criterion 0.6.0`.
 - Moved [`/tests`](./tests) to be in the root of the project.
 - Restructured where in the modules global definitions (constants, types, etc.) are.
-- Updated dates in licences
+- Updated dates in licenses

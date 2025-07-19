@@ -4,9 +4,9 @@ version = "0.3.0"
 edition = "2021"
 description = "A library that solves equations using numerical methods"
 repository = "https://github.com/AzeezDa/eqsolver"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 readme = "README.md"
-keywords = ["equation", "solver", "mathematics", "ode", "optimization", "integration"]
+keywords = ["equation", "solver", "mathematics", "optimization", "integration"]
 categories = ["science", "mathematics", "algorithms"]
 
 [badges]
