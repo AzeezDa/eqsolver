@@ -1,12 +1,12 @@
 [package]
 name = "eqsolver"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "A library that solves equations using numerical methods"
 repository = "https://github.com/AzeezDa/eqsolver"
 license = "MIT"
 readme = "README.md"
-keywords = ["equation", "solver", "mathematics", "ode", "optimization"]
+keywords = ["equation", "solver", "mathematics", "ode", "optimization", "integration"]
 categories = ["science", "mathematics", "algorithms"]
 
 [badges]
@@ -19,11 +19,12 @@ path = "src/lib.rs"
 [dependencies]
 nalgebra = "0.33.0"
 num-traits = "0.2.19"
-rand = "0.8.5"
-rand_distr = "0.4.3"
+rand = "0.9.1"
+rand_distr = "0.5.1"
 
 [dev-dependencies]
-criterion = { version = "0.5.1", features = ["html_reports"] }
+criterion = { version = "0.6.0", features = ["html_reports"] }
+rand_chacha = "0.9.0"
 
 [[bench]]
 name = "eqsolver_benchmark"

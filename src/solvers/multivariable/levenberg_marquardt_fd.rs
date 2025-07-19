@@ -1,8 +1,5 @@
-use super::{
-    levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE},
-    VectorType,
-};
-use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use super::levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE};
+use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
 use std::marker::PhantomData;

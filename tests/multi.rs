@@ -1,6 +1,6 @@
 use nalgebra::{vector, DMatrix, DVector, Matrix2, Matrix3x2, Vector2, Vector3};
 
-use crate::multivariable::{
+use eqsolver::multivariable::{
     GaussNewton, GaussNewtonFD, LevenbergMarquardt, LevenbergMarquardtFD, MultiVarNewton,
     MultiVarNewtonFD,
 };

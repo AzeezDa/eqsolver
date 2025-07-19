@@ -1,4 +1,5 @@
-use criterion::{black_box, criterion_group, Criterion};
+use criterion::{criterion_group, Criterion};
+use std::hint::black_box;
 use eqsolver::single_variable::*;
 use std::f64::consts::PI;
 

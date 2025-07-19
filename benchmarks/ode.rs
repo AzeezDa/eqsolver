@@ -1,4 +1,5 @@
-use criterion::{black_box, criterion_group, Criterion};
+use criterion::{criterion_group, Criterion};
+use std::hint::black_box;
 use eqsolver::{ODESolver, ODESolverMethod};
 use nalgebra::{vector, SVector, Vector2};
 

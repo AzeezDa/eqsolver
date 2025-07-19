@@ -1,4 +1,5 @@
-use criterion::{black_box, criterion_group, Criterion};
+use criterion::{criterion_group, Criterion};
+use std::hint::black_box;
 use eqsolver::{global_optimisers::*, multivariable::*};
 use nalgebra::{vector, DMatrix, DVector, Matrix, SVector};
 use std::f64::consts::PI;
@@ -71,6 +72,7 @@ macro_rules! bench_pso {
         $c.bench_function(format!("PSO {}", $name).as_str(), |bh| {
             bh.iter(|| {
                 ParticleSwarm::new($f, $lbounds, $ubounds)
+                    .unwrap()
                     .solve(black_box($guess))
                     .unwrap()
             })

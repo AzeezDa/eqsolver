@@ -1,5 +1,5 @@
+use eqsolver::{ODESolver, SolverError};
 use nalgebra::{vector, Vector2};
-use crate::{ODESolver, SolverError};
 
 #[test]
 fn first_order_ode_solver() {
