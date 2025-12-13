@@ -98,7 +98,7 @@ where
     /// let solution = Newton::new(f, df)
     ///     .with_itermax(20)
     ///     .solve(1.); // Solver will terminate after 20 iterations
-    /// assert_eq!(solution.err().unwrap(), SolverError::MaxIterReached);
+    /// assert_eq!(solution.err().unwrap(), SolverError::MaxIterReached(21));
     /// ```
     pub fn with_itermax(&mut self, max: usize) -> &mut Self {
         self.iter_max = max;
@@ -129,7 +129,7 @@ where
         }
 
         if iter >= self.iter_max {
-            return Err(SolverError::MaxIterReached);
+            return Err(SolverError::MaxIterReached(iter));
         }
 
         if x0.is_nan() {

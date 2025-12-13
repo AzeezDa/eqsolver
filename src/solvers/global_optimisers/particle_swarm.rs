@@ -40,7 +40,7 @@ impl<T: Copy, const N: usize> CircularArray<T, N> {
         self.i %= N;
     }
 
-    pub fn iter(&self) -> Iter<T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         self.array.iter()
     }
 }
@@ -114,33 +114,29 @@ where
     /// Sets up the optimiser given the function `f` to optimise and the bounds of the hyperrectangle that contains the global minimum.
     /// The hyperrectangle is given as two vectors `lower_bounds` and `upper_bounds` containing the lower and upper bounds of each dimension,
     /// respectively.
-    /// 
+    ///
     /// As per the changes in `rand` version 0.9, this will fail if any bounds pair [from, to] does not fulfil from <= to
     pub fn new(
         f: F,
         lower_bounds: VectorType<T, D>,
         upper_bounds: VectorType<T, D>,
     ) -> SolverResult<Self> {
-        let Ok(position_distributions) = lower_bounds
+        let position_distributions = lower_bounds
             .iter()
             .zip(upper_bounds.iter())
             .map(|(&low, &up)| Uniform::new_inclusive(low, up))
-            .collect()
-        else {
-            return SolverResult::Err(SolverError::ExternalError);
-        };
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|error| SolverError::ExternalError(error.to_string()))?;
 
-        let Ok(velocity_distributions) = lower_bounds
+        let velocity_distributions = lower_bounds
             .iter()
             .zip(upper_bounds.iter())
             .map(|(&low, &up)| {
                 let distance = Float::abs(up - low);
                 Uniform::new_inclusive(-distance, distance)
             })
-            .collect()
-        else {
-            return SolverResult::Err(SolverError::ExternalError);
-        };
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|error| SolverError::ExternalError(error.to_string()))?;
 
         SolverResult::Ok(Self {
             f,
@@ -392,9 +388,8 @@ where
             })
             .collect();
 
-        let Ok(u01) = Uniform::new_inclusive(T::zero(), T::one()) else {
-            return SolverResult::Err(SolverError::ExternalError);
-        };
+        let u01 = Uniform::new_inclusive(T::zero(), T::one())
+            .map_err(|error| SolverError::ExternalError(error.to_string()))?;
 
         for _ in 0..self.iter_max {
             if self.stalled_too_long(global_best_cost, &previous_best) {

@@ -90,7 +90,7 @@ where
     /// let solution = Secant::new(f)
     ///     .with_itermax(20)
     ///     .solve(0.5, 1.); // Solver will terminate after 20 iterations
-    /// assert_eq!(solution.err().unwrap(), SolverError::MaxIterReached);
+    /// assert_eq!(solution.err().unwrap(), SolverError::MaxIterReached(21));
     /// ```
     pub fn with_itermax(&mut self, max: usize) -> &mut Self {
         self.iter_max = max;
@@ -115,12 +115,18 @@ where
     /// let f = |x: f64| x*x - 2.; // Solve x^2 = 2
     /// let solution = Secant::new(f)
     ///     .solve(1.4, 1.4);
-    /// assert_eq!(solution.err().unwrap(), SolverError::IncorrectInput);
+    /// assert!(match solution.unwrap_err() {
+    ///     SolverError::IncorrectInput {details: _} => true,
+    ///     _ => false
+    /// })
+    ///
     /// ```
     pub fn solve(&self, mut x0: T, mut x1: T) -> SolverResult<T> {
         if x0 == x1 {
             // If the same point is given as starting guesses, return error
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::IncorrectInput {
+                details: "the input points should be different",
+            });
         };
 
         let mut dx = T::max_value(); // We assume error is infinite at the start
@@ -139,7 +145,7 @@ where
         }
 
         if iter >= self.iter_max {
-            return Err(SolverError::MaxIterReached);
+            return Err(SolverError::MaxIterReached(iter));
         }
 
         if x1.is_nan() {

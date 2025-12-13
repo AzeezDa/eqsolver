@@ -1,6 +1,7 @@
 pub extern crate nalgebra;
 use nalgebra::{allocator::Allocator, DefaultAllocator, Matrix, Vector};
 use num_traits::Float;
+use thiserror::Error;
 
 mod solvers;
 pub use solvers::*;
@@ -15,25 +16,31 @@ pub const DEFAULT_TOL: f64 = 1e-6;
 pub const DEFAULT_ITERMAX: usize = 50;
 
 /// Types of errors encountered by the solvers
-#[derive(Debug, PartialEq)]
+#[derive(Error, Debug, PartialEq)]
 pub enum SolverError {
     /// The amount of iterations (or similar limits) reached the limit
-    MaxIterReached,
+    #[error("maximum number of iteration, {0}, reached")]
+    MaxIterReached(usize),
 
     /// The value evalutated is a `NaN`
+    #[error("the resulting value is not a number (NaN)")]
     NotANumber,
 
     /// The given input is not correct
-    IncorrectInput,
+    #[error("an input value is incorrect: {details}")]
+    IncorrectInput { details: &'static str },
 
     /// A Jacobian Matrix in the iteration was singular or ill-defined
+    #[error("encountered a singular or ill-defined Jacobian matrix")]
     BadJacobian,
 
     /// A conversion between types, typically between `usize` and `T: Float` has failed.
+    #[error("failed to convert between types (often between usize and T: Float)")]
     TypeConversionError,
 
     /// An error from an external crate or library
-    ExternalError,
+    #[error("encountered an external error: {0}")]
+    ExternalError(String),
 }
 
 /// Alias for `Result<T, SolverError>`
@@ -67,7 +74,9 @@ impl<T: Float> MeanVariance<T> {
     /// ```
     pub fn new(mean: T, variance: T) -> SolverResult<Self> {
         if variance < T::zero() {
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::IncorrectInput {
+                details: "variance must be greater than 0",
+            });
         }
         Ok(Self { mean, variance })
     }
@@ -179,7 +188,9 @@ impl<T: Float> MeanVariance<T> {
         }
 
         if total_count < 2 {
-            Err(SolverError::IncorrectInput)
+            Err(SolverError::IncorrectInput {
+                details: "the iterator must be over at least 2 elements",
+            })
         } else {
             if use_bessel_correction {
                 total_count -= 1;

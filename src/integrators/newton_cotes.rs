@@ -123,12 +123,14 @@ where
     /// ```
     pub fn integrate(&self, from: T, to: T) -> SolverResult<T> {
         if from > to {
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::IncorrectInput {
+                details: "the input to-value should be at least as big as the from-value",
+            });
         }
 
         let mut subdivision_values = vec![T::zero(); self.subdivisions + 1];
         let Some(subdivisions_as_t) = T::from(self.subdivisions) else {
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::TypeConversionError);
         };
 
         let delta = (to - from) / subdivisions_as_t;

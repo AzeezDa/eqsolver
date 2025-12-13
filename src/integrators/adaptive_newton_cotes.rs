@@ -173,7 +173,7 @@ where
                 number_of_cuts += 1;
             }
             if number_of_cuts > self.maximum_cut_count {
-                return Err(SolverError::MaxIterReached);
+                return Err(SolverError::MaxIterReached(number_of_cuts));
             }
         }
 

@@ -193,7 +193,7 @@ where
         }
 
         if iter >= self.iter_max {
-            return Err(SolverError::MaxIterReached);
+            return Err(SolverError::MaxIterReached(iter));
         }
 
         Ok(x0)

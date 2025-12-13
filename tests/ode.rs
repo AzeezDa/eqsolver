@@ -13,7 +13,10 @@ fn first_order_ode_solver() {
     let solution = solver.solve(x_end).unwrap();
 
     assert!((solution - SOLUTION).abs() < 1e-2);
-    assert_eq!(solver.solve(-1.).unwrap_err(), SolverError::IncorrectInput); // Solvers only go forward
+    assert!(match solver.solve(-1.).unwrap_err() {
+        SolverError::IncorrectInput { details: _ } => true,
+        _ => false,
+    }); // Solvers only go forward
 }
 
 #[test]

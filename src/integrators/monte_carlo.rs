@@ -146,7 +146,9 @@ where
         volume: T,
     ) -> SolverResult<MeanVariance<T>> {
         if volume < T::zero() {
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::IncorrectInput {
+                details: "the input volume should be non-negative",
+            });
         }
         let mut sample_iterator = (0..self.sample_count).map(|_| (self.f)(sampler()));
 
@@ -167,9 +169,8 @@ where
         to: T,
         mut rng: &mut impl Rng,
     ) -> SolverResult<MeanVariance<T>> {
-        let Ok(uniform_sampler) = Uniform::new_inclusive(from, to) else {
-            return SolverResult::Err(SolverError::ExternalError);
-        };
+        let uniform_sampler = Uniform::new_inclusive(from, to)
+            .map_err(|error| SolverError::ExternalError(error.to_string()))?;
         let sampler = || uniform_sampler.sample(&mut rng);
 
         self.integrate_with_sampler(sampler, to - from)
@@ -194,7 +195,7 @@ where
             .zip(to.iter())
             .map(|(&x, &y)| Uniform::new_inclusive(x, y))
             .collect::<Result<Vec<_>, _>>()
-            .map_err(|_| SolverError::ExternalError)?;
+            .map_err(|error| SolverError::ExternalError(error.to_string()))?;
 
         let volume = (to - &from).product();
 

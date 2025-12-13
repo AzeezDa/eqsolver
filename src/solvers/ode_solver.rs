@@ -148,7 +148,9 @@ where
         let mut y = self.y0;
         let steps = T::to_usize(&((x_end - self.x0) / self.h)).unwrap_or(0);
         if steps == 0 {
-            return Err(SolverError::IncorrectInput);
+            return Err(SolverError::IncorrectInput {
+                details: "the number of steps should be positive",
+            });
         }
 
         for _ in 1..steps {

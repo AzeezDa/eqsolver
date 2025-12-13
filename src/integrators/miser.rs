@@ -293,7 +293,8 @@ where
 // === PRIVATE HELPER FUNCTIONS ===
 
 fn uniform<T: SampleUniform>(lower: T, upper: T) -> SolverResult<Uniform<T>> {
-    Uniform::new_inclusive(lower, upper).map_err(|_| SolverError::IncorrectInput)
+    Uniform::new_inclusive(lower, upper)
+        .map_err(|error| SolverError::ExternalError(error.to_string()))
 }
 
 fn miser_recurse<F, T, D>(

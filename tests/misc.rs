@@ -3,7 +3,7 @@ use nalgebra::{vector, Vector1};
 use eqsolver::{
     multivariable::{GaussNewton, GaussNewtonFD, MultiVarNewton, MultiVarNewtonFD},
     single_variable::{FDNewton, Newton, Secant},
-    SolverError,
+    SolverError, DEFAULT_ITERMAX,
 };
 
 #[test]
@@ -27,27 +27,48 @@ fn max_iter_reached_detection() {
     let j = |v: Vector1<f64>| Vector1::new(2. * v[0]);
 
     let solution = MultiVarNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     let solution = MultiVarNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     let solution = GaussNewton::new(f, j).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     let solution = GaussNewtonFD::new(f).with_tol(1e-3).solve(vector![3.0]);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     // Single-variable solvers
     let f = |v: f64| v.powi(2) + 1.;
     let j = |v: f64| 2. * v;
 
     let solution = Newton::new(f, j).with_tol(1e-3).solve(3.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     let solution = FDNewton::new(f).with_tol(1e-3).solve(3.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 
     let solution = Secant::new(f).with_tol(1e-3).solve(3., 4.);
-    assert_eq!(solution, Err(SolverError::MaxIterReached));
+    assert_eq!(
+        solution,
+        Err(SolverError::MaxIterReached(DEFAULT_ITERMAX + 1))
+    );
 }
