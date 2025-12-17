@@ -1,4 +1,4 @@
-use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType};
+use crate::{SolverError, SolverResult, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
 use std::marker::PhantomData;
@@ -175,7 +175,7 @@ where
             // Approximate Jacobian using forward finite difference
             for i in 0..dim {
                 let mut x_h = x0.clone();
-                x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
+                x_h[i] += self.h; // Add derivative step to specific parameter
                 let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..dim {
                     j[(k, i)] = df[k];

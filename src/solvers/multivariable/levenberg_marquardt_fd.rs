@@ -1,5 +1,5 @@
 use super::levenberg_marquardt::{DEFAULT_DAMPING_DECAY_FACTOR, DEFAULT_DAMPING_INITIAL_VALUE};
-use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType};
+use crate::{SolverError, SolverResult, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, UniformNorm, U1};
 use num_traits::{Float, Signed};
 use std::marker::PhantomData;
@@ -122,7 +122,7 @@ where
             // Approximate the Jacobian using forward finite difference
             for i in 0..j.ncols() {
                 let mut x_h = x0.clone();
-                x_h[i] = x_h[i] + self.h; // Add derivative step to specific parameter
+                x_h[i] += self.h; // Add derivative step to specific parameter
                 let df = ((self.f)(x_h) - &fx) / self.h; // Derivative of F with respect to x_i
                 for k in 0..j.nrows() {
                     j[(k, i)] = df[k];

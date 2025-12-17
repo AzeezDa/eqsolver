@@ -1,8 +1,8 @@
 use criterion::{criterion_group, Criterion};
-use std::hint::black_box;
 use eqsolver::{global_optimisers::*, multivariable::*};
 use nalgebra::{vector, DMatrix, DVector, Matrix, SVector};
 use std::f64::consts::PI;
+use std::hint::black_box;
 
 criterion_group!(
     benches,

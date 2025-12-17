@@ -1,4 +1,4 @@
-use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL, MatrixType, VectorType};
+use crate::{MatrixType, SolverError, SolverResult, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::{Float, Signed};
 use std::marker::PhantomData;

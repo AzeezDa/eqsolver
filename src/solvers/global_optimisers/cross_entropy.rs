@@ -1,4 +1,4 @@
-use crate::{VectorType, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL};
+use crate::{SolverResult, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar, UniformNorm};
 use num_traits::Float;
 use rand::rng;
@@ -33,17 +33,17 @@ const DEFAULT_IMPORTANCE_SELECTION_SIZE: usize = 10;
 /// const SIZE: usize = 16;
 /// let rastrigin = |v: SVector<f64, SIZE>| {
 ///     let mut total = 10. * SIZE as f64;
-
+///
 ///     for &w in v.iter() {
 ///         total += w * w - 10. * (2. * std::f64::consts::PI * w).cos();
 ///     }
-
+///
 ///     total
 /// };
 ///
-
+///
 /// let guess = SVector::repeat(80.);
-/// 
+///
 /// let optimised_position = CrossEntropy::new(rastrigin)
 ///     .solve(guess)
 ///     .unwrap();
@@ -112,7 +112,7 @@ where
 
     /// Set the maximum number of iterations of the optimiser. After that number of iterations is reached,
     /// the current mean vector (best value) is returned.
-    /// 
+    ///
     /// **Default Max Iterations:** `50`
     /// ## Examples
     /// ```
@@ -137,9 +137,9 @@ where
         self
     }
 
-    /// Sets the number of samples drawn each iteration. This value should be greater 
+    /// Sets the number of samples drawn each iteration. This value should be greater
     /// than the importance selection size
-    /// 
+    ///
     /// **Default Sample Size:** `100`
     /// ## Examples
     /// ```
@@ -164,9 +164,9 @@ where
         self
     }
 
-    /// Sets how many of the sampled values are selected in order of smallest objective function value. 
+    /// Sets how many of the sampled values are selected in order of smallest objective function value.
     /// This value should be less than sample size.
-    /// 
+    ///
     /// **Default Importance Selection Size:** `10`
     /// ## Examples
     /// ```
@@ -196,7 +196,7 @@ where
 
     /// Sets the initial standard deviation vector used in the optimiser. The vector should contain positive values which
     /// should be *large* when the uncertainty is high.
-    /// 
+    ///
     /// **Default Standard Deviations:** `[1.0, 1.0,... 1.0]`
     /// ## Examples
     /// ```
@@ -224,7 +224,7 @@ where
 
     /// Optimises the function using a given initial value (or guess) by returning an approximation of the global
     /// minimum of the objective function.
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// # use eqsolver::global_optimisers::CrossEntropy;

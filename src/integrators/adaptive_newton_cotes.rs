@@ -5,7 +5,6 @@ use crate::integrators::DEFAULT_MAXIMUM_CUT_COUNT;
 use crate::DEFAULT_TOL;
 use crate::{SolverError, SolverResult};
 
-
 /// # Adaptive Newton-Cotes
 ///
 /// A numerical integrator of functions `f: R -> R` based on the adaptive Newton-Cotes
@@ -160,8 +159,8 @@ where
             let delta_i = (to_i - from_i) * half;
             let mid_i = from_i + delta_i;
 
-            let integral_full = formula(&self, from_i, to_i);
-            let integral_split = formula(&self, from_i, mid_i) + formula(&self, mid_i, to_i);
+            let integral_full = formula(self, from_i, to_i);
+            let integral_split = formula(self, from_i, mid_i) + formula(self, mid_i, to_i);
 
             let error = (integral_full - integral_split).abs();
 

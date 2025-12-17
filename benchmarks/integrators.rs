@@ -55,17 +55,11 @@ macro_rules! bench_with_all_methods {
         });
 
         $c.bench_function("Monte Carlo", |bh| {
-            bh.iter(|| {
-                MonteCarlo::new($f)
-                    .integrate(black_box($from), black_box($to))
-            });
+            bh.iter(|| MonteCarlo::new($f).integrate(black_box($from), black_box($to)));
         });
 
         $c.bench_function("MISER", |bh| {
-            bh.iter(|| {
-                MonteCarlo::new($f)
-                    .integrate(black_box($from), black_box($to))
-            });
+            bh.iter(|| MonteCarlo::new($f).integrate(black_box($from), black_box($to)));
         });
     };
 }

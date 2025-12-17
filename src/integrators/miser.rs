@@ -24,7 +24,7 @@ const DEFAULT_DITHER: f64 = 0.05;
 
 /// # The MISER Algorithm
 ///
-/// The Monte Carlo integration algorithm MISER by Press and Farrar (See [1]) uses stratified
+/// The Monte Carlo integration algorithm MISER by Press and Farrar (See \[1\]) uses stratified
 /// sampling based on variance of the integrand's value on the sampled points. More specifically,
 /// the original subregion (which must be a Cartesian product of intervals `[a, b]` for real `a,
 /// b`) is bisected along some dimension such that the integrand's value in those two subregions
@@ -32,10 +32,10 @@ const DEFAULT_DITHER: f64 = 0.05;
 /// then distributed to those subregions according to the variance. This procedure is continued
 /// recursively until either the recursion depth is reached or the number of sample points
 /// allocated to that subregion fall under an (adjustable) threshold. The procedure is implemented
-/// in [`miser_recurse`].
+/// in (private function) `miser_recurse`.
 ///
 /// There are several adjustable parameters in this implementation of [`MISER`]. The parameters are
-/// inspired by those used in [1]. The parameters in [`MISER`] are:
+/// inspired by those used in \[1\]. The parameters in [`MISER`] are:
 ///
 /// - **Sample Count**: (Default `1000`) A lower bound on the number of points to sample in total.
 ///   The reason this is a lower bound is because if the minimum threshold is fallen under then
@@ -84,7 +84,7 @@ const DEFAULT_DITHER: f64 = 0.05;
 /// ## References:
 /// (1) Press, W.H. and Farrar, G.R., 1990. Recursive stratified sampling for multidimensional
 ///     Monte Carlo integration. Computers in Physics, 4(2), pp.190-195.
-/// (2) https://www.gnu.org/software/gsl/doc/html/montecarlo.html
+/// (2) <https://www.gnu.org/software/gsl/doc/html/montecarlo.html>
 pub struct MISER<F, V, T> {
     f: F,
     sample_count: usize,
@@ -205,9 +205,10 @@ where
     ///
     /// The alpha value changes the proportions of the allocated samples points to each subregion
     /// of the bisection that happens in every recursion call of [`MISER`]. More precisely, the
-    /// allocated points for each subregions follow the following formulas.
+    /// allocated points for each subregions follow the following formulas:
     /// - `N_1 = N * (Var_1^beta / (Var_1^beta + Var_2^beta))`
     /// - `N_2 = N * (Var_2^beta / (Var_1^beta + Var_2^beta))`
+    ///
     /// where `N` is the total sample points, `Var_1` and `Var_2` are the variances of the
     /// integrand on the first and second subregions, respectively, and `beta = 1 / (1 + alpha)`.
     ///
@@ -280,7 +281,7 @@ where
         rng: &mut impl rand::Rng,
     ) -> SolverResult<MeanVariance<T>> {
         miser_recurse(
-            &self,
+            self,
             &mut from,
             &mut to,
             rng,

@@ -1,5 +1,5 @@
-mod particle_swarm;
 mod cross_entropy;
+mod particle_swarm;
 
-pub use particle_swarm::ParticleSwarm;
 pub use cross_entropy::CrossEntropy;
+pub use particle_swarm::ParticleSwarm;

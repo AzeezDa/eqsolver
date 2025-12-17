@@ -154,7 +154,7 @@ where
         }
 
         for _ in 1..steps {
-            y = (self.method)(&self, x, y);
+            y = (self.method)(self, x, y);
             x = x + self.h;
         }
 

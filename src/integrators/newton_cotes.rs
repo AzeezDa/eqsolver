@@ -135,11 +135,15 @@ where
 
         let delta = (to - from) / subdivisions_as_t;
 
-        for i in 0..=self.subdivisions {
-            subdivision_values[i] = (self.f)(from + T::from(i).unwrap() * delta);
+        for (i, item) in subdivision_values
+            .iter_mut()
+            .enumerate()
+            .take(self.subdivisions + 1)
+        {
+            *item = (self.f)(from + T::from(i).unwrap() * delta);
         }
 
-        Ok((self.formula)(&self, &subdivision_values, delta))
+        Ok((self.formula)(self, &subdivision_values, delta))
     }
 
     // === PRIVATE FUNCTIONS: The composite Newton-Cotes formulas ===

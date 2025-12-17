@@ -1,4 +1,4 @@
-use crate::{SolverError, SolverResult, DEFAULT_ITERMAX, DEFAULT_TOL, VectorType};
+use crate::{SolverError, SolverResult, VectorType, DEFAULT_ITERMAX, DEFAULT_TOL};
 use nalgebra::{allocator::Allocator, ComplexField, DefaultAllocator, Dim, Scalar};
 use num_traits::Float;
 use rand::rng;
@@ -70,18 +70,18 @@ impl<T: Copy, const N: usize> CircularArray<T, N> {
 /// const SIZE: usize = 16;
 /// let rastrigin = |v: SVector<f64, SIZE>| {
 ///     let mut total = 10. * SIZE as f64;
-
+///
 ///     for &w in v.iter() {
 ///         total += w * w - 10. * (2. * std::f64::consts::PI * w).cos();
 ///     }
-
+///
 ///     total
 /// };
 ///
-
+///
 /// let guess = SVector::repeat(80.);
 /// let bounds = SVector::repeat(100.);
-
+///
 /// let optimised_position = ParticleSwarm::new(rastrigin, -bounds, bounds)
 ///     .unwrap()
 ///     .solve(guess)
