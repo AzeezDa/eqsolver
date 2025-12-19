@@ -1,6 +1,6 @@
 [package]
 name = "eqsolver"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 description = "A library that solves equations using numerical methods"
 repository = "https://github.com/AzeezDa/eqsolver"
