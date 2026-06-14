@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file, starting fr
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.1] - 2026-06-14
+
+### Changed
+Upgraded the following dependencies
+- `nalgebra` to `0.35.0`
+- `rand` to `0.10.1`
+- `rand_distr` to `0.6.0`
+- `thiserror` to `2.0.18`
+- `criterion` to `0.8.2`
+- `rand_chacha` to `0.10.0`
+
 ## [0.4.0] - 2025-12-19
 
 ### Added
