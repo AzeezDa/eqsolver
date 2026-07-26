@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file, starting fr
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.4.2] - 2026-07-26
 
 ### Fixed
 - `ODESolver::solve` stopped one step short, returning `y(x_end - h)` and degrading every method (including the default RK4) to first-order accuracy; it now integrates to `x_end` exactly, even when the step size does not divide the interval.
