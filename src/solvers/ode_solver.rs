@@ -170,6 +170,9 @@ where
 
     /// Change the solver's step size
     ///
+    /// Note that when the solver is run, the step size may be slightly adjusted to make the
+    /// integration's last step align with the end of the interval.
+    ///
     /// ## Examples
     /// ```
     /// use eqsolver::ODESolver;
