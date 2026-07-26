@@ -36,7 +36,7 @@ fn ode_system_solver() {
 #[test]
 fn rk4_order_of_accuracy() {
     // RK4 is 4th order: halving the step size must cut the error by roughly 2^4 = 16.
-    // The off-by-one in solve dropped the final step, degrading this to 1st order.
+    // The off-by-one in solve dropped the final step, degrading this to 1st order (#15).
     let f = |_t: f64, y: f64| -y;
     let (x0, y0, x_end) = (0., 1., 1.);
     let exact = (-1.0_f64).exp();

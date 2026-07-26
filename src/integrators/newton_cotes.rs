@@ -24,6 +24,15 @@ pub enum Formula {
     SimpsonsThreeEighths,
 }
 
+/// Number of subintervals spanned by one panel of the given composite rule.
+const fn panel_width(formula: &Formula) -> usize {
+    match formula {
+        Formula::Trapezium => 1,
+        Formula::SimpsonsOneThird => 2,
+        Formula::SimpsonsThreeEighths => 3,
+    }
+}
+
 /// # Newton-Cotes
 ///
 /// A numerical integrator of functions `f: R -> R` based on the composite
@@ -48,8 +57,7 @@ pub struct NewtonCotes<T, F> {
     f: F,
     formula: fn(&Self, &[T], T) -> T,
     subdivisions: usize,
-    /// Number of subintervals spanned by one panel of the current composite rule:
-    /// 1 for the trapezium, 2 for Simpson's 1/3, 3 for Simpson's 3/8.
+    /// Number of subintervals spanned by one panel of the current composite rule.
     panel: usize,
 }
 
@@ -66,7 +74,7 @@ where
             f,
             subdivisions: DEFAULT_SUBDIVISIONS,
             formula: Self::simpsons_one_third,
-            panel: 2,
+            panel: panel_width(&Formula::SimpsonsOneThird),
         }
     }
 
@@ -87,11 +95,7 @@ where
     /// assert!((integral - 1.631).abs() <= 1e-3);
     /// ```
     pub fn with_formula(&mut self, formula: Formula) -> &mut Self {
-        self.panel = match formula {
-            Formula::Trapezium => 1,
-            Formula::SimpsonsOneThird => 2,
-            Formula::SimpsonsThreeEighths => 3,
-        };
+        self.panel = panel_width(&formula);
         self.formula = match formula {
             Formula::Trapezium => Self::trapezium,
             Formula::SimpsonsOneThird => Self::simpsons_one_third,
@@ -101,6 +105,10 @@ where
     }
 
     /// Specify the number of subintervals the integration interval is split in.
+    ///
+    /// When the integrator is run, the number of subintervals will be adjusted to the next nearest
+    /// multiple that the given formula is expecting. In particular, since the default formula is
+    /// Simpson's 1/3 Method, the count in that case is adjusted to the next nearest even integer.
     ///
     /// The default is 1000.
     ///

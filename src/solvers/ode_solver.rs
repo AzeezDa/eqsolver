@@ -152,7 +152,11 @@ where
 
         // Take a uniform step that lands exactly on `x_end`, even when the requested
         // step size does not divide the interval evenly.
-        let h = interval / T::from(steps).unwrap();
+        let h = if let Some(steps_casted) = T::from(steps) {
+            interval / steps_casted
+        } else {
+            return Err(SolverError::TypeConversionError);
+        };
 
         let mut x = self.x0;
         let mut y = self.y0;
