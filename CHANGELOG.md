@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file, starting fr
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- `ODESolver::solve` stopped one step short, returning `y(x_end - h)` and degrading every method (including the default RK4) to first-order accuracy; it now integrates to `x_end` exactly, even when the step size does not divide the interval.
+- The composite Simpson's 1/3 and 3/8 rules in `NewtonCotes` dropped the trailing subinterval(s) when the subdivision count was not a multiple of 2 or 3 (including the default of 1000 for Simpson's 3/8); the count is now rounded up to a valid multiple.
+
 ## [0.4.1] - 2026-06-14
 
 ### Changed

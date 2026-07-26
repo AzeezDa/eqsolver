@@ -24,6 +24,15 @@ pub enum Formula {
     SimpsonsThreeEighths,
 }
 
+/// Number of subintervals spanned by one panel of the given composite rule.
+const fn panel_width(formula: &Formula) -> usize {
+    match formula {
+        Formula::Trapezium => 1,
+        Formula::SimpsonsOneThird => 2,
+        Formula::SimpsonsThreeEighths => 3,
+    }
+}
+
 /// # Newton-Cotes
 ///
 /// A numerical integrator of functions `f: R -> R` based on the composite
@@ -48,6 +57,8 @@ pub struct NewtonCotes<T, F> {
     f: F,
     formula: fn(&Self, &[T], T) -> T,
     subdivisions: usize,
+    /// Number of subintervals spanned by one panel of the current composite rule.
+    panel: usize,
 }
 
 impl<T, F> NewtonCotes<T, F>
@@ -63,6 +74,7 @@ where
             f,
             subdivisions: DEFAULT_SUBDIVISIONS,
             formula: Self::simpsons_one_third,
+            panel: panel_width(&Formula::SimpsonsOneThird),
         }
     }
 
@@ -83,6 +95,7 @@ where
     /// assert!((integral - 1.631).abs() <= 1e-3);
     /// ```
     pub fn with_formula(&mut self, formula: Formula) -> &mut Self {
+        self.panel = panel_width(&formula);
         self.formula = match formula {
             Formula::Trapezium => Self::trapezium,
             Formula::SimpsonsOneThird => Self::simpsons_one_third,
@@ -92,6 +105,10 @@ where
     }
 
     /// Specify the number of subintervals the integration interval is split in.
+    ///
+    /// When the integrator is run, the number of subintervals will be adjusted to the next nearest
+    /// multiple that the given formula is expecting. In particular, since the default formula is
+    /// Simpson's 1/3 Method, the count in that case is adjusted to the next nearest even integer.
     ///
     /// The default is 1000.
     ///
@@ -128,8 +145,18 @@ where
             });
         }
 
-        let mut subdivision_values = vec![T::zero(); self.subdivisions + 1];
-        let Some(subdivisions_as_t) = T::from(self.subdivisions) else {
+        // The composite Simpson rules require the subdivision count to be a multiple of
+        // the panel width (2 for Simpson's 1/3, 3 for Simpson's 3/8). Round the requested
+        // count up to the next valid multiple so no trailing subinterval is dropped.
+        let remainder = self.subdivisions % self.panel;
+        let subdivisions = if remainder == 0 {
+            self.subdivisions
+        } else {
+            self.subdivisions + self.panel - remainder
+        };
+
+        let mut subdivision_values = vec![T::zero(); subdivisions + 1];
+        let Some(subdivisions_as_t) = T::from(subdivisions) else {
             return Err(SolverError::TypeConversionError);
         };
 
@@ -138,7 +165,7 @@ where
         for (i, item) in subdivision_values
             .iter_mut()
             .enumerate()
-            .take(self.subdivisions + 1)
+            .take(subdivisions + 1)
         {
             *item = (self.f)(from + T::from(i).unwrap() * delta);
         }

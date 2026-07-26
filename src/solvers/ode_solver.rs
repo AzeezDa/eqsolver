@@ -67,8 +67,7 @@ pub struct ODESolver<T, V, F> {
     x0: T,
     y0: V,
     h: T,
-    half_h: T,
-    method: fn(&Self, T, V) -> V,
+    method: fn(&Self, T, V, T) -> V,
 }
 
 impl<T, V, F> ODESolver<T, V, F>
@@ -99,7 +98,6 @@ where
             x0,
             y0,
             h,
-            half_h: h / T::from(2_f64).unwrap(),
             method: Self::rk4_step,
         }
     }
@@ -144,18 +142,27 @@ where
     /// assert!((solution[0] - SOLUTION) <= 1e-3);
     /// ```
     pub fn solve(&self, x_end: T) -> SolverResult<V> {
-        let mut x = self.x0;
-        let mut y = self.y0;
-        let steps = T::to_usize(&((x_end - self.x0) / self.h)).unwrap_or(0);
+        let interval = x_end - self.x0;
+        let steps = T::to_usize(&(interval / self.h).round()).unwrap_or(0);
         if steps == 0 {
             return Err(SolverError::IncorrectInput {
                 details: "the number of steps should be positive",
             });
         }
 
-        for _ in 1..steps {
-            y = (self.method)(self, x, y);
-            x = x + self.h;
+        // Take a uniform step that lands exactly on `x_end`, even when the requested
+        // step size does not divide the interval evenly.
+        let h = if let Some(steps_casted) = T::from(steps) {
+            interval / steps_casted
+        } else {
+            return Err(SolverError::TypeConversionError);
+        };
+
+        let mut x = self.x0;
+        let mut y = self.y0;
+        for _ in 0..steps {
+            y = (self.method)(self, x, y, h);
+            x = x + h;
         }
 
         Ok(y)
@@ -174,8 +181,6 @@ where
     ///
     /// let mut solver = ODESolver::new(f, x0, y0, h);
     ///
-    /// # let solution = solver.solve(x_end).unwrap();
-    /// # assert!((solution - (-1_f64).exp()) > 1e-3); // Error too big!
     /// let solution = solver
     ///                 .with_step_size(0.001)
     ///                 .solve(x_end); // This changes solver's step size until changed again
@@ -183,7 +188,6 @@ where
     /// ```
     pub fn with_step_size(&mut self, h: T) -> &mut Self {
         self.h = h;
-        self.half_h = h / T::from(2.).unwrap();
         self
     }
 
@@ -202,8 +206,6 @@ where
     /// let h = 0.1; // step size
     ///
     /// let mut solver = ODESolver::new(f, x0, y0, h);
-    /// # let solution = solver.solve(x_end).unwrap();
-    /// # assert!((solution - (-1_f64).exp()) > 1e-3); // Error too big!
     ///
     /// let solution = solver
     ///                 .with_steps(x_end, 1000)
@@ -212,7 +214,6 @@ where
     /// ```
     pub fn with_steps(&mut self, x_end: T, steps: usize) -> &mut Self {
         self.h = (x_end - self.x0) / T::from(steps).unwrap();
-        self.half_h = self.h / T::from(2.).unwrap();
         self
     }
 
@@ -256,21 +257,23 @@ where
 
     // === PRIVATE FUNCTIONS: A step in the different methods available ===
 
-    fn euler_step(&self, x: T, y: V) -> V {
-        y + (self.f)(x, y) * self.h
+    fn euler_step(&self, x: T, y: V, h: T) -> V {
+        y + (self.f)(x, y) * h
     }
 
-    fn heun_step(&self, x: T, y: V) -> V {
-        let y1 = y + (self.f)(x, y) * self.h;
-        y + (y1 + (self.f)(x + self.h, y1)) * self.half_h
+    fn heun_step(&self, x: T, y: V, h: T) -> V {
+        let half_h = h * T::from(0.5).unwrap();
+        let y1 = y + (self.f)(x, y) * h;
+        y + (y1 + (self.f)(x + h, y1)) * half_h
     }
 
-    fn rk4_step(&self, x: T, y: V) -> V {
+    fn rk4_step(&self, x: T, y: V, h: T) -> V {
+        let half_h = h * T::from(0.5).unwrap();
         let k1 = (self.f)(x, y);
-        let k2 = (self.f)(x + self.half_h, y + k1 * self.half_h);
-        let k3 = (self.f)(x + self.half_h, y + k2 * self.half_h);
-        let k4 = (self.f)(x + self.h, y + k3 * self.h);
+        let k2 = (self.f)(x + half_h, y + k1 * half_h);
+        let k3 = (self.f)(x + half_h, y + k2 * half_h);
+        let k4 = (self.f)(x + h, y + k3 * h);
 
-        y + (k1 + k2 + k2 + k3 + k3 + k4) * (self.h / T::from(6_f64).unwrap())
+        y + (k1 + k2 + k2 + k3 + k3 + k4) * (h / T::from(6_f64).unwrap())
     }
 }

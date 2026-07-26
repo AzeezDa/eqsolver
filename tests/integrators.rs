@@ -50,7 +50,45 @@ fn simpsons_three_eighths() {
         .integrate(0., 1.)
         .unwrap();
 
-    assert!((result - APPROXIMATE_INTEGRAL_GAUSSIAN_0_TO_1).abs() <= 1e-3)
+    assert!((result - APPROXIMATE_INTEGRAL_GAUSSIAN_0_TO_1).abs() <= 1e-9)
+}
+
+#[test]
+fn simpsons_one_third_exact_for_cubics() {
+    // Simpson's 1/3 is exact for cubics; the composite rule must not drop the last
+    // subinterval when the subdivision count is odd (#15). ∫₀³ x³ dx = 20.25.
+    let f = |x: f64| x * x * x;
+    for n in [10usize, 11, 99, 100, 101, 1000, 1001] {
+        let result = NewtonCotes::new(f)
+            .with_formula(Formula::SimpsonsOneThird)
+            .with_subdivisions(n)
+            .integrate(0., 3.)
+            .unwrap();
+        assert!((result - 20.25).abs() < 1e-9, "n = {n}");
+    }
+}
+
+#[test]
+fn simpsons_three_eighths_exact_for_cubics() {
+    // Simpson's 3/8 is exact for cubics; the composite rule must not drop trailing
+    // subintervals when the count is not a multiple of three, including the default
+    // of 1000 (#15). ∫₀³ x³ dx = 20.25.
+    let f = |x: f64| x * x * x;
+    for n in [12usize, 13, 14, 100, 300, 301, 1000] {
+        let result = NewtonCotes::new(f)
+            .with_formula(Formula::SimpsonsThreeEighths)
+            .with_subdivisions(n)
+            .integrate(0., 3.)
+            .unwrap();
+        assert!((result - 20.25).abs() < 1e-9, "n = {n}");
+    }
+
+    // Default subdivisions (1000 is not a multiple of three) via the public default path.
+    let result = NewtonCotes::new(f)
+        .with_formula(Formula::SimpsonsThreeEighths)
+        .integrate(0., 3.)
+        .unwrap();
+    assert!((result - 20.25).abs() < 1e-9, "default subdivisions");
 }
 
 #[test]
